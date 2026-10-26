@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;family=DM+Mono:wght@400;500&amp;family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#e8e5de;font-family:'DM Sans',sans-serif;color:#24231f;-webkit-font-smoothing:antialiased}
+a{color:#24231f;text-decoration:none}
+a:hover{color:#b8643f}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+@keyframes countryPop{from{transform:scale(1) translateY(0)}to{transform:scale(var(--s)) translateY(-3px)}}
+</style>
+</helmet>
+<section style="padding:64px 64px 0;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="font:500 13px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6b675e">Turn 6 · Trip builder</div>
+    <div style="font-size:15px;color:#4a4740;max-width:760px;text-wrap:pretty">Continues from 4a. Start screen unchanged. In the search, “+ Add” puts a place on the trip; “Plan route” opens the planner with the route on the map. Fields follow the backend TripRequest: origin, stops with optional nights, return to origin, dates or days, travellers, budget, tier.</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <div id="6a" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">6a</span><span style="font-size:14px;color:#4a4740">Trip builder: search → add places → plan the route</span></div>
+      <div data-screen-label="6a Trip builder" onClick="{{ v4a.bgClick }}" style="width:1280px;height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <header style="position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:22px 40px">
+          <div onClick="{{ tp.closePlan }}" style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em;cursor:pointer">Holydays</div>
+          <button style="border:1px solid #24231f;background:transparent;padding:9px 18px;border-radius:999px;font-size:14px">Sign in</button>
+        </header>
+        <div style="position:absolute;left:-185px;top:2px;width:1650px;opacity:{{ v4a.mapOp }};filter:{{ v4a.mapBlur }};transform:{{ v4a.mapTf }};transform-origin:{{ v4a.mapOrigin }};transition:opacity .5s, filter .5s, transform .8s cubic-bezier(.2,.8,.2,1)">
+          <svg viewBox="0 0 1376 768" onMouseLeave="{{ v4a.leave }}" onMouseMove="{{ v4a.move }}" style="width:100%;display:block;overflow:visible">
+            <rect x="-200" y="-200" width="1776" height="1168" fill="transparent" onMouseEnter="{{ v4a.unhover }}"></rect>
+            <sc-for list="{{ v4a.countries }}" as="k" hint-placeholder-count="0">
+              <path d="{{ k.d }}" fill="{{ k.fill }}" stroke="#f7f5f0" stroke-width=".6" stroke-linejoin="round" onMouseEnter="{{ k.enter }}" onClick="{{ k.pick }}" style="cursor:pointer"></path>
+            </sc-for>
+            {{ v4a.hovEl }}
+            <sc-for list="{{ tp.arcs }}" as="r" hint-placeholder-count="0">
+              <path d="{{ r.d }}" fill="none" stroke="#24231f" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round" vector-effect="non-scaling-stroke" style="pointer-events:none"></path>
+            </sc-for>
+          </svg>
+          <sc-for list="{{ v4a.pills }}" as="p" hint-placeholder-count="0">
+            <button onClick="{{ p.pick }}" style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-50%);border:none;cursor:pointer;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#fffdf8;color:#24231f;transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s" style-hover="transform:translate(-50%,-50%) scale(1.08);box-shadow:0 6px 16px rgba(0,0,0,.16)">{{ p.name }}</button>
+          </sc-for>
+          <sc-if value="{{ v4a.hasHov }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{ v4a.hov.x }};top:{{ v4a.hov.y }};transform:translate(-50%,calc(-100% - 16px));pointer-events:none;display:flex;align-items:center;gap:8px;background:#24231f;color:#f7f5f0;padding:8px 14px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap;box-shadow:0 8px 20px rgba(36,35,31,.22)"><span style="width:8px;height:8px;border-radius:50%;background:{{ v4a.hov.fill }}"></span>{{ v4a.hov.n }}</div>
+          </sc-if>
+        </div>
+        <div style="position:absolute;left:40px;right:40px;top:190px;bottom:0;z-index:2;overflow:auto;display:flex;flex-direction:column;gap:24px;padding-bottom:110px;opacity:{{ v4a.panelOp }};transform:translateY({{ v4a.panelY }});pointer-events:{{ v4a.pe }};transition:opacity .4s .15s, transform .7s .15s cubic-bezier(.2,.8,.2,1)">
+          <div data-keep="1" style="display:flex;align-items:center;justify-content:space-between;gap:16px 32px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px">
+              <sc-for list="{{ v4a.moods }}" as="m" hint-placeholder-count="4">
+                <button onClick="{{ m.pick }}" style="border:none;border-radius:999px;padding:8px 16px;font-size:14px;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <sc-for list="{{ v4a.months }}" as="m" hint-placeholder-count="4">
+                <button onClick="{{ m.pick }}" style="border:none;cursor:pointer;border-radius:999px;padding:8px 16px;font-size:14px;background:{{ m.bg2 }};color:{{ m.fg }}">{{ m.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid #d8d3c8;padding-top:20px">
+            <div style="font:700 36px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ v4a.countLabel }}</div>
+            <div style="font:500 14px 'Bricolage Grotesque',sans-serif;color:#6b675e">{{ v4a.whenLabel }} · {{ v4a.guestLabel }}</div>
+          </div>
+          <sc-if value="{{ v4a.none }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:16px;color:#6b675e">No places match. Try a country or continent.</div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+            <sc-for list="{{ v4a.res }}" as="d" hint-placeholder-count="0">
+              <div data-keep="1" style="display:flex;flex-direction:column;gap:10px;cursor:pointer;opacity:{{ d.op }};transform:translateY({{ d.y }});transition:opacity .5s {{ d.delay }}, transform .6s {{ d.delay }} cubic-bezier(.2,.8,.2,1)">
+                <div style="position:relative;height:170px;border-radius:6px;overflow:hidden;background:#e4dfd4">
+                  <sc-if value="{{ d.img }}" hint-placeholder-val="{{ false }}"><img src="{{ d.img }}" alt="{{ d.name }}" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.2,1)"></sc-if>
+                  <span style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;background:rgba(255,253,248,.92);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;color:#24231f"><span style="width:8px;height:8px;border-radius:50%;background:{{ d.color }}"></span>{{ d.mood }}</span>
+                  <button onClick="{{ d.add }}" style="position:absolute;right:10px;top:10px;border:none;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;background:{{ d.addBg }};color:{{ d.addFg }};box-shadow:0 2px 8px rgba(0,0,0,.12);transition:background .2s, color .2s" style-hover="transform:scale(1.05)">{{ d.addLabel }}</button>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <div style="font-size:18px;font-weight:500">{{ d.name }}<span style="color:#6b675e;font-weight:400">, {{ d.country }}</span></div>
+                  <div style="font:500 14px 'Bricolage Grotesque',sans-serif;color:#6b675e">{{ d.season }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ tp.pins }}" as="p" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};z-index:3;pointer-events:none;display:flex;align-items:center;gap:6px;transform:translate(-12px,-12px)">
+            <span style="width:24px;height:24px;box-sizing:border-box;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ p.bg }};color:{{ p.fg }};border:{{ p.bd }};box-shadow:0 2px 6px rgba(36,35,31,.25)">{{ p.num }}</span>
+            <span style="display:{{ p.lbl }};background:#fffdf8;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12)">{{ p.name }}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ tp.hasHov }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;z-index:4;left:{{ tp.hov.x }};top:{{ tp.hov.y }};transform:translate(-50%,calc(-100% - 16px));pointer-events:none;display:flex;align-items:center;gap:8px;background:#24231f;color:#f7f5f0;padding:8px 14px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap;box-shadow:0 8px 20px rgba(36,35,31,.22)"><span style="width:8px;height:8px;border-radius:50%;background:{{ tp.hov.fill }}"></span>{{ tp.hov.t }}</div>
+        </sc-if>
+        <sc-if value="{{ tp.tray }}" hint-placeholder-val="{{ false }}">
+          <div data-keep="1" style="position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;max-width:1100px;background:#24231f;color:#f7f5f0;border-radius:999px;padding:8px 8px 8px 20px;box-shadow:0 16px 40px rgba(36,35,31,.3)">
+            <span style="font-size:14px;color:#cfc9bd;white-space:nowrap">From <strong style="color:#f7f5f0;font-weight:600">{{ tp.originName }}</strong></span>
+            <div style="display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;max-width:640px">
+              <sc-for list="{{ tp.trayStops }}" as="s" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+                  <span style="color:#8d877b">→</span>
+                  <span style="display:flex;align-items:center;gap:4px;background:#3a3832;border-radius:999px;padding:5px 6px 5px 12px;font-size:14px;font-weight:500;white-space:nowrap">{{ s.name }}<button onClick="{{ s.remove }}" aria-label="Remove" style="width:22px;height:22px;border-radius:50%;border:none;background:transparent;color:#cfc9bd;font-size:14px;line-height:1" style-hover="background:#4a4740;color:#fff">×</button></span>
+                </div>
+              </sc-for>
+            </div>
+            <span style="font-size:14px;color:#cfc9bd;white-space:nowrap;padding:0 8px">{{ tp.trayHint }}</span>
+            <button onClick="{{ tp.openPlan }}" style="border:none;background:#f7f5f0;color:#24231f;border-radius:999px;height:42px;padding:0 20px;font-size:14px;font-weight:600;white-space:nowrap" style-hover="background:#e8dcc8">Plan route →</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tp.plan }}" hint-placeholder-val="{{ false }}">
+          <aside data-keep="1" style="position:absolute;left:24px;top:84px;bottom:24px;width:420px;z-index:5;background:#fffdf8;border-radius:22px;box-shadow:0 16px 48px rgba(40,30,20,.16);display:flex;flex-direction:column">
+            <div style="padding:20px 24px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <span style="font-size:12px;font-weight:700;color:#6b675e">Step {{ tp.stepNum }} of 3</span>
+                <div style="font-size:26px;font-weight:700;letter-spacing:-.03em;white-space:nowrap">{{ tp.stepTitle }}</div>
+              </div>
+              <button onClick="{{ tp.browse }}" style="display:{{ tp.s1i }};flex-shrink:0;white-space:nowrap;border:none;background:transparent;padding:0 0 4px;font-size:14px;font-weight:500;color:#24231f;text-decoration:underline;text-underline-offset:3px">Browse ideas</button>
+              <button onClick="{{ tp.goBack }}" style="display:{{ tp.s2i }};flex-shrink:0;white-space:nowrap;border:none;background:transparent;padding:0 0 4px;font-size:14px;font-weight:500;color:#24231f;text-decoration:underline;text-underline-offset:3px">{{ tp.backLabel }}</button>
+            </div>
+            <div style="display:flex;gap:4px;padding:0 24px 12px"><span style="flex:1;height:3px;border-radius:999px;background:#24231f"></span><span style="flex:1;height:3px;border-radius:999px;background:{{ tp.bar2 }};transition:background .3s"></span><span style="flex:1;height:3px;border-radius:999px;background:{{ tp.bar3 }};transition:background .3s"></span></div>
+            <div style="flex:1;min-height:0;display:{{ tp.s1 }};flex-direction:column">
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:4px 24px 16px;display:flex;flex-direction:column">
+              <div style="position:relative;display:flex;align-items:center;gap:12px">
+                <span style="width:28px;height:28px;box-sizing:border-box;flex-shrink:0;border-radius:50%;border:3px solid #24231f;background:#fffdf8"></span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:12px;font-weight:700;color:#6b675e">From</span>
+                  <input value="{{ tp.oq }}" onChange="{{ tp.onOQ }}" onFocus="{{ tp.ofocus }}" onBlur="{{ tp.oblur }}" placeholder="{{ tp.originName }}" style="border:none;outline:none;background:transparent;padding:0;font:600 17px 'Bricolage Grotesque',sans-serif;color:#24231f;min-width:0">
+                </div>
+                <sc-if value="{{ tp.osugOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:3;background:#fffdf8;border-radius:18px;padding:8px;box-shadow:0 24px 60px rgba(40,30,20,.22);display:flex;flex-direction:column">
+                    <div style="font-size:12px;font-weight:700;color:#6b675e;padding:6px 10px">{{ tp.osugTitle }}</div>
+                    <sc-for list="{{ tp.osug }}" as="g" hint-placeholder-count="5">
+                      <button onMouseDown="{{ g.pick }}" style="display:flex;align-items:center;gap:10px;border:none;background:transparent;border-radius:12px;padding:10px;text-align:left" style-hover="background:#f1ece2">
+                        <span style="width:8px;height:8px;border-radius:50%;background:{{ g.dot }};flex-shrink:0"></span>
+                        <span style="font-size:15px;font-weight:600;color:#24231f">{{ g.name }} <span style="font-weight:400;color:#6b675e">{{ g.country }}</span></span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <sc-for list="{{ tp.items }}" as="p" hint-placeholder-count="0">
+                <div data-stop="1" style="position:relative;display:flex;flex-direction:column">
+                  <div style="display:flex;align-items:center;gap:12px;height:28px">
+                    <span style="width:28px;align-self:stretch;display:flex;justify-content:center"><span style="border-left:2px dotted #b9b2a4"></span></span>
+                  </div>
+                  <div onPointerDown="{{ p.pDown }}" onPointerMove="{{ p.pMove }}" onPointerUp="{{ p.pUp }}" onPointerCancel="{{ p.pUp }}" style="position:relative;display:flex;align-items:center;gap:10px;padding:4px 6px 4px 0;margin-right:-6px;background:#fffdf8;border-radius:14px;touch-action:none;user-select:none;cursor:{{ p.cur }};transform:{{ p.tf }};transition:{{ p.tr }};z-index:{{ p.z }};box-shadow:{{ p.sh }}">
+                    <span style="width:28px;height:28px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:#24231f;color:#fff">{{ p.num }}</span>
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                      <span style="font-size:17px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+                      <span style="font-size:13px;color:#6b675e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.country }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:2px">
+                      <button onClick="{{ p.minus }}" aria-label="Fewer nights" style="width:24px;height:24px;border:none;border-radius:6px;background:transparent;padding:0;font-size:17px;font-weight:400;line-height:1;color:#9a958a;transition:color .15s, background .15s" style-hover="color:#24231f;background:#f1ece2">−</button>
+                      <span style="font-size:14px;font-weight:500;min-width:62px;text-align:center;color:{{ p.nFg }};white-space:nowrap;font-variant-numeric:tabular-nums">{{ p.nightsLabel }}</span>
+                      <button onClick="{{ p.plus }}" aria-label="More nights" style="width:24px;height:24px;border:none;border-radius:6px;background:transparent;padding:0;font-size:17px;font-weight:400;line-height:1;color:#9a958a;transition:color .15s, background .15s" style-hover="color:#24231f;background:#f1ece2">+</button>
+                    </div>
+                    <div style="display:flex;align-items:center">
+                      <span title="Drag to reorder" style="width:22px;height:28px;display:flex;align-items:center;justify-content:center;font-size:16px;letter-spacing:-2px;color:#b9b2a4;cursor:grab">⋮⋮</span>
+                      <button onClick="{{ p.remove }}" aria-label="Remove" style="width:26px;height:26px;border-radius:50%;border:none;background:transparent;font-size:16px;color:#6b675e" style-hover="background:#f1ece2;color:#24231f">×</button>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:12px;height:40px">
+                <span style="width:28px;align-self:stretch;display:flex;justify-content:center"><span style="border-left:2px dotted #d8d3c8"></span></span>
+              </div>
+              <div style="position:relative">
+                <input value="{{ tp.q }}" onChange="{{ tp.onQ }}" onFocus="{{ tp.focus }}" onBlur="{{ tp.blurQ }}" placeholder="+ Add a stop, or click the map" style="width:100%;box-sizing:border-box;border:1.5px dashed #c9c2b4;border-radius:14px;padding:13px 16px;background:transparent;outline:none;font:500 15px 'Bricolage Grotesque',sans-serif;color:#24231f">
+                <sc-if value="{{ tp.sugOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:3;background:#fffdf8;border-radius:18px;padding:8px;box-shadow:0 24px 60px rgba(40,30,20,.22);display:flex;flex-direction:column">
+                    <div style="font-size:12px;font-weight:700;color:#6b675e;padding:6px 10px">{{ tp.sugTitle }}</div>
+                    <sc-for list="{{ tp.sug }}" as="g" hint-placeholder-count="5">
+                      <button onMouseDown="{{ g.pick }}" style="display:flex;align-items:center;gap:10px;border:none;background:transparent;border-radius:12px;padding:10px;text-align:left" style-hover="background:#f1ece2">
+                        <span style="width:8px;height:8px;border-radius:50%;background:{{ g.dot }};flex-shrink:0"></span>
+                        <span style="flex:1;font-size:15px;font-weight:600;color:#24231f">{{ g.name }} <span style="font-weight:400;color:#6b675e">{{ g.country }}</span></span>
+                        <span style="font-size:13px;color:#6b675e;white-space:nowrap">{{ g.dist }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <button onClick="{{ tp.toggleBack }}" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;border:none;background:transparent;padding:0;font-size:15px;font-weight:500;color:#24231f">
+                <span>Return to {{ tp.originName }}</span>
+                <span style="position:relative;width:38px;height:22px;border-radius:999px;background:{{ tp.backBg }};transition:background .2s"><span style="position:absolute;top:2px;left:{{ tp.backX }};width:18px;height:18px;border-radius:50%;background:#fffdf8;transition:left .2s"></span></span>
+              </button>
+            </div>
+            <div style="padding:16px 24px 20px;border-top:1px solid #ece6da;display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ tp.goNext }}" style="border:none;background:{{ tp.nextBg }};color:#f7f5f0;border-radius:14px;height:54px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:16px;font-weight:600;white-space:nowrap;cursor:{{ tp.nextCur }}" style-hover="filter:brightness(1.15)"><span>Continue</span><span style="font-size:13px;font-weight:500;opacity:.8">{{ tp.stopsInfo }} →</span></button>
+            </div>
+            </div>
+            <div style="flex:1;min-height:0;display:{{ tp.s2 }};flex-direction:column">
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:4px 24px 16px;display:flex;flex-direction:column;gap:18px">
+              <button onClick="{{ tp.goBack }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;border:none;background:transparent;padding:0;text-align:left">
+                <span style="font-size:12px;font-weight:700;color:#6b675e">Route</span>
+                <span style="font-size:14px;font-weight:600;color:#24231f;line-height:1.45;text-wrap:pretty">{{ tp.routeLine }}</span>
+              </button>
+              <div style="display:flex;flex-direction:column;border-top:1px solid #ece6da">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;border-bottom:1px solid #ece6da">
+                  <div style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:15px;font-weight:600">When</span><button onClick="{{ tp.pickDates }}" style="align-self:flex-start;border:none;background:transparent;padding:0;font-size:13px;color:#6b675e;text-decoration:underline;text-underline-offset:3px">{{ tp.dateLink }}</button></div>
+                  <div style="display:{{ tp.notDatedD }};align-items:center;gap:6px"><button onClick="{{ tp.daysMinus }}" aria-label="Fewer days" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:transparent;font-size:15px;line-height:1;color:#24231f" style-hover="border-color:#24231f">−</button><span style="font-size:15px;font-weight:600;min-width:64px;text-align:center;font-variant-numeric:tabular-nums">{{ tp.days }}</span><button onClick="{{ tp.daysPlus }}" aria-label="More days" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:transparent;font-size:15px;line-height:1;color:#24231f" style-hover="border-color:#24231f">+</button></div><span style="display:{{ tp.datedB }};font-size:15px;font-weight:600;text-align:right">{{ tp.dateText }}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;border-bottom:1px solid #ece6da">
+                  <div style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:15px;font-weight:600">Travellers</span></div>
+                  <div style="display:flex;align-items:center;gap:6px"><button onClick="{{ tp.gMinus }}" aria-label="Fewer travellers" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:transparent;font-size:15px;line-height:1;color:#24231f" style-hover="border-color:#24231f">−</button><span style="font-size:15px;font-weight:600;min-width:64px;text-align:center;font-variant-numeric:tabular-nums">{{ tp.guests }}</span><button onClick="{{ tp.gPlus }}" aria-label="More travellers" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:transparent;font-size:15px;line-height:1;color:#24231f" style-hover="border-color:#24231f">+</button></div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;border-bottom:1px solid #ece6da">
+                  <div style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:15px;font-weight:600">Budget</span><span style="font-size:13px;color:#6b675e">For the whole group</span></div>
+                  <label style="display:flex;align-items:baseline;gap:6px;border-bottom:1.5px solid #24231f;padding-bottom:3px"><span style="font-size:14px;color:#6b675e">CHF</span><input value="{{ tp.budget }}" onChange="{{ tp.onBudget }}" inputmode="numeric" aria-label="Budget in CHF" style="width:72px;border:none;outline:none;background:transparent;padding:0;text-align:right;font:600 17px 'Bricolage Grotesque',sans-serif;color:#24231f;font-variant-numeric:tabular-nums"></label>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;padding:16px 0 4px">
+                  <span style="font-size:15px;font-weight:600;padding-bottom:8px">Class</span>
+                  <sc-for list="{{ tp.tiers }}" as="t" hint-placeholder-count="3">
+                    <button onClick="{{ t.pick }}" aria-pressed="{{ t.on }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:0;border:none;background:transparent;text-align:left;color:#24231f">
+                      <span style="width:18px;height:18px;box-sizing:border-box;flex-shrink:0;border-radius:50%;border:{{ t.ring }};transition:border .15s"></span>
+                      <span style="flex:1;font-size:15px;font-weight:{{ t.fw }}">{{ t.label }}</span>
+                      <span style="font-size:13px;color:#6b675e">{{ t.hint }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <div style="padding:16px 24px 20px;border-top:1px solid #ece6da;display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ tp.goNext }}" style="border:none;background:#24231f;color:#f7f5f0;border-radius:14px;height:54px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:16px;font-weight:600;white-space:nowrap" style-hover="filter:brightness(1.15)"><span>Continue</span><span style="font-size:13px;font-weight:500;opacity:.8">Preferences →</span></button>
+            </div>
+            </div>
+            <div style="flex:1;min-height:0;display:{{ tp.s3 }};flex-direction:column">
+            <div style="flex:1;min-height:0;overflow-y:auto;padding:4px 24px 16px;display:flex;flex-direction:column;gap:22px">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:700">What kind of trip?</span><span style="font-size:13px;color:#6b675e">Pick one</span></div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px"><sc-for list="{{ tp.typeChips }}" as="k" hint-placeholder-count="6"><button onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display:flex;align-items:center;gap:9px;min-height:44px;padding:6px 10px;border:none;border-radius:12px;background:{{ k.rbg }};box-shadow:{{ k.ring }};color:#24231f;font-size:14px;font-weight:600;text-align:left;min-width:0;transition:background .15s, box-shadow .15s" style-hover="background:#fffdf8"><span style="width:16px;height:16px;box-sizing:border-box;flex-shrink:0;border-radius:50%;border:{{ k.radio }};transition:border .15s"></span><span style="line-height:1.2;text-wrap:balance">{{ k.label }}</span></button></sc-for></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:700">What would you like to see?</span><span style="font-size:13px;color:#6b675e">Pick as many as you like</span></div><span style="font-size:12px;font-weight:600;color:#6b675e;white-space:nowrap">{{ tp.interestCount }}</span></div>
+                <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px"><sc-for list="{{ tp.interestChips }}" as="k" hint-placeholder-count="6"><button onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display:flex;align-items:center;gap:9px;min-height:44px;padding:6px 10px;border:none;border-radius:12px;background:{{ k.rbg }};box-shadow:{{ k.ring }};color:#24231f;font-size:14px;font-weight:600;text-align:left;min-width:0;transition:background .15s, box-shadow .15s" style-hover="background:#fffdf8"><span style="width:16px;height:16px;box-sizing:border-box;flex-shrink:0;border-radius:5px;border:1.5px solid {{ k.cbBd }};background:{{ k.cbBg }};display:flex;align-items:center;justify-content:center;transition:background .15s"><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true" style="opacity:{{ k.checkOp }}"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span style="line-height:1.2;text-wrap:balance">{{ k.label }}</span></button></sc-for></div>
+              </div>
+              <sc-if value="{{ tp.over }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px;color:#a8432a">{{ tp.overText }}</div>
+              </sc-if>
+              <sc-if value="{{ tp.hasSend }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:{{ tp.sendFg }}">
+                  <span style="text-wrap:pretty">{{ tp.sendMsg }}</span>
+                  <sc-if value="{{ tp.sendDone }}" hint-placeholder-val="{{ false }}"><a href="{{ tp.tripUrl }}" target="_blank" style="font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap">Open plan</a></sc-if>
+                </div>
+              </sc-if>
+            </div>
+            <div style="padding:16px 24px 20px;border-top:1px solid #ece6da;display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ tp.submit }}" style="border:none;background:{{ tp.ctaBg }};color:#f7f5f0;border-radius:14px;height:54px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:16px;font-weight:600;white-space:nowrap" style-hover="filter:brightness(1.15)"><span>{{ tp.ctaText }}</span><span style="font-size:13px;font-weight:500;opacity:.8">{{ tp.nightsInfo }} →</span></button>
+            </div>
+            </div>
+          </aside>
+        </sc-if>
+        <div data-keep="1" style="position:absolute;left:50%;z-index:4;top:{{ v4a.barTop }};width:{{ v4a.barW }};transform:translateX(-50%);transition:top .75s cubic-bezier(.2,.8,.2,1), width .75s cubic-bezier(.2,.8,.2,1);display:flex;align-items:stretch;gap:4px;background:#fffdf8;border-radius:{{ v4a.barR }};padding:8px;box-sizing:border-box;box-shadow:0 12px 40px rgba(40,30,20,.16)">
+          <label style="flex:1.4;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:{{ v4a.inPad }};cursor:text">
+            <sc-if value="{{ v4a.open }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:12px;font-weight:700;color:#6b675e">Where to?</span>
+            </sc-if>
+            <input value="{{ v4a.q }}" onChange="{{ tp.onWhere }}" onFocus="{{ tp.wFocus }}" onBlur="{{ tp.wBlur }}" onClick="{{ v4a.openIt }}" placeholder="{{ v4a.ph }}" style="border:none;outline:none;background:transparent;font-size:18px;font-weight:{{ v4a.inW }};color:#24231f;padding:0;min-width:0">
+          </label>
+          <sc-if value="{{ tp.whereOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:calc(100% + 10px);left:8px;width:460px;z-index:12;background:#fffdf8;border-radius:20px;padding:10px;box-shadow:0 24px 60px rgba(40,30,20,.22);display:flex;flex-direction:column;gap:2px">
+              <div style="font-size:12px;font-weight:700;color:#6b675e;padding:6px 10px">Places</div>
+              <sc-for list="{{ tp.whereSug }}" as="g" hint-placeholder-count="5">
+                <button onMouseDown="{{ g.pick }}" style="display:flex;align-items:center;gap:12px;border:none;background:transparent;border-radius:12px;padding:10px;text-align:left" style-hover="background:#f7f2e9">
+                  <span style="width:8px;height:8px;border-radius:50%;background:{{ g.dot }};flex-shrink:0"></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                    <span style="font-size:16px;font-weight:600;color:#24231f">{{ g.name }}</span>
+                    <span style="font-size:13px;color:#6b675e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.sub }}</span>
+                  </span>
+                  <span style="font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px;white-space:nowrap;background:{{ g.lbBg }};color:{{ g.lbFg }}">{{ g.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ v4a.open }}" hint-placeholder-val="{{ false }}">
+            <div data-keep="1" style="position:relative;display:flex;flex-direction:column;justify-content:center;padding:6px 8px;border-left:1px solid #ece6da">
+              <button onClick="{{ v4a.calToggle }}" style="border:none;background:{{ v4a.calBtnBg }};border-radius:14px;padding:6px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;font-family:inherit;transition:background .2s" style-hover="background:#f1ece2">
+                <span style="font-size:12px;font-weight:700;color:#6b675e">When?</span>
+                <span style="font-size:17px;font-weight:500;color:{{ v4a.dateFg }};white-space:nowrap">{{ v4a.dateText }}</span>
+              </button>
+              <sc-if value="{{ v4a.calOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:calc(100% + 18px);left:50%;transform:translateX(-50%);z-index:10;width:640px;background:#fffdf8;border-radius:24px;padding:24px 28px;box-shadow:0 24px 60px rgba(40,30,20,.22);display:flex;flex-direction:column;gap:20px">
+                  <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:36px">
+                    <button onClick="{{ v4a.calPrev }}" aria-label="Previous month" style="position:absolute;left:-6px;top:-4px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:18px;color:#24231f;opacity:{{ v4a.prevOp }}" style-hover="background:#f1ece2">‹</button>
+                    <button onClick="{{ v4a.calNext }}" aria-label="Next month" style="position:absolute;right:-6px;top:-4px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:18px;color:#24231f" style-hover="background:#f1ece2">›</button>
+                    <sc-for list="{{ v4a.cal }}" as="mo" hint-placeholder-count="2">
+                      <div style="display:flex;flex-direction:column;gap:12px">
+                        <div style="text-align:center;font-size:16px;font-weight:700;line-height:24px">{{ mo.title }}</div>
+                        <div style="display:grid;grid-template-columns:repeat(7,1fr);row-gap:2px">
+                          <sc-for list="{{ v4a.wd }}" as="w" hint-placeholder-count="7">
+                            <div style="text-align:center;font-size:12px;font-weight:600;color:#6b675e;padding-bottom:6px">{{ w }}</div>
+                          </sc-for>
+                          <sc-for list="{{ mo.days }}" as="d" hint-placeholder-count="35">
+                            <div style="display:flex;justify-content:center;background:{{ d.band }};border-radius:{{ d.br }}">
+                              <button onClick="{{ d.pick }}" disabled="{{ d.off }}" style="width:38px;height:38px;border-radius:50%;border:none;background:{{ d.bg }};color:{{ d.fg }};font:{{ d.fw }} 14px 'Bricolage Grotesque',sans-serif;cursor:{{ d.cur }};opacity:{{ d.op }}" style-hover="box-shadow:inset 0 0 0 1.5px #24231f">{{ d.label }}</button>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ece6da;padding-top:16px">
+                    <span style="font-size:14px;color:#6b675e">{{ v4a.calHint }}</span>
+                    <div style="display:flex;align-items:center;gap:16px">
+                      <button onClick="{{ v4a.calClear }}" style="border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#24231f;text-decoration:underline;text-underline-offset:3px">Clear</button>
+                      <button onClick="{{ v4a.calDone }}" style="border:none;background:#24231f;color:#f7f4ed;border-radius:999px;padding:10px 22px;cursor:pointer;font-size:14px;font-weight:600" style-hover="background:#bc7654">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:10px 18px;border-left:1px solid #ece6da">
+              <span style="font-size:12px;font-weight:700;color:#6b675e">Travellers</span>
+              <div style="display:flex;align-items:center;gap:12px">
+                <button onClick="{{ v4a.minus }}" style="width:28px;height:28px;border-radius:50%;border:1px solid #d8d3c8;background:#fffdf8;font-size:15px;line-height:1">−</button>
+                <span style="font-size:17px;font-weight:500;min-width:14px;text-align:center">{{ v4a.guests }}</span>
+                <button onClick="{{ v4a.plus }}" style="width:28px;height:28px;border-radius:50%;border:1px solid #d8d3c8;background:#fffdf8;font-size:15px;line-height:1">+</button>
+              </div>
+            </div>
+          </sc-if>
+          <button onClick="{{ v4a.openIt }}" style="border:none;background:#24231f;color:#f7f5f0;border-radius:{{ v4a.btnR }};height:{{ v4a.btnH }};align-self:center;padding:0 {{ v4a.btnPad }};font-size:15px;font-weight:{{ v4a.btnW }};transition:background .2s" style-hover="background:#bc7654">{{ v4a.btnText }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;apiBase&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;http://localhost:8000&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Backend&quot;}}">
+const CONT = [
+  { id: 'europe', name: 'Europe', color: '#7f82ab' },
+  { id: 'asia', name: 'Asia', color: '#8a9567' },
+  { id: 'africa', name: 'Africa', color: '#b8975f' },
+  { id: 'namerica', name: 'North America', color: '#8b9787' },
+  { id: 'samerica', name: 'South America', color: '#a98a55' },
+  { id: 'oceania', name: 'Oceania', color: '#c2714e' }
+];
+const DEST = [
+  { id: 'lis', c: 'europe', name: 'Lisbon', country: 'Portugal', mood: 'City', season: 'May–Jun' },
+  { id: 'dol', c: 'europe', name: 'Dolomites', country: 'Italy', mood: 'Nature', season: 'Jul–Sep' },
+  { id: 'spl', c: 'europe', name: 'Split', country: 'Croatia', mood: 'Beach', season: 'Jun–Sep' },
+  { id: 'kyo', c: 'asia', name: 'Kyoto', country: 'Japan', mood: 'City', season: 'Mar–Apr' },
+  { id: 'bal', c: 'asia', name: 'Bali', country: 'Indonesia', mood: 'Beach', season: 'Apr–Oct' },
+  { id: 'hoi', c: 'asia', name: 'Hoi An', country: 'Vietnam', mood: 'City', season: 'Feb–Apr' },
+  { id: 'mar', c: 'africa', name: 'Marrakech', country: 'Morocco', mood: 'City', season: 'Mar–May' },
+  { id: 'cpt', c: 'africa', name: 'Cape Town', country: 'South Africa', mood: 'Nature', season: 'Nov–Mar' },
+  { id: 'zan', c: 'africa', name: 'Zanzibar', country: 'Tanzania', mood: 'Beach', season: 'Jun–Oct' },
+  { id: 'mex', c: 'namerica', name: 'Mexico City', country: 'Mexico', mood: 'City', season: 'Mar–May' },
+  { id: 'ban', c: 'namerica', name: 'Banff', country: 'Canada', mood: 'Nature', season: 'Jun–Sep' },
+  { id: 'tul', c: 'namerica', name: 'Tulum', country: 'Mexico', mood: 'Beach', season: 'Dec–Apr' },
+  { id: 'cus', c: 'samerica', name: 'Cusco', country: 'Peru', mood: 'Nature', season: 'May–Sep' },
+  { id: 'bue', c: 'samerica', name: 'Buenos Aires', country: 'Argentina', mood: 'City', season: 'Oct–Dec' },
+  { id: 'flo', c: 'samerica', name: 'Florianópolis', country: 'Brazil', mood: 'Beach', season: 'Dec–Mar' },
+  { id: 'que', c: 'oceania', name: 'Queenstown', country: 'New Zealand', mood: 'Nature', season: 'Dec–Feb' },
+  { id: 'syd', c: 'oceania', name: 'Sydney', country: 'Australia', mood: 'City', season: 'Sep–Nov' },
+  { id: 'fij', c: 'oceania', name: 'Fiji', country: 'Fiji', mood: 'Beach', season: 'May–Oct' }
+];
+const contOf = id => CONT.find(c => c.id === id);
+const POS = { namerica: [27, 30], samerica: [35, 62], europe: [52, 22], africa: [54, 52], asia: [70, 28], oceania: [83, 64] };
+const MAPCOL = { namerica: '#a1a899', samerica: '#c8af83', europe: '#8a8cb2', africa: '#c49a8e', asia: '#979e75', oceania: '#bc7654' };
+const SEARCH0 = { open: false, q: '', mood: 'All', month: 'Summer', guests: 2 };
+const LIGHT = Object.fromEntries(Object.entries(MAPCOL).map(([k, h]) => { const a = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)), b = [247, 245, 240]; return [k, 'rgb(' + a.map((v, j) => Math.round(v + (b[j] - v) * 0.6)).join(',') + ')']; }));
+const PLEN = [1, .9986, .9954, .99, .9761, .9394, .8936, .8435, .7881, .7313];
+const plen = lat => { const a = Math.min(89.9, Math.abs(lat)) / 10, i = Math.floor(a); return PLEN[i] + (PLEN[Math.min(9, i + 1)] - PLEN[i]) * (a - i); };
+const proj = (lat, lon) => [712.8 + 3.037 * lon * plen(lat), 385.3 - 3.534 * lat];
+const unproj = (x, y) => { const lat = (385.3 - y) / 3.534; return [lat, (x - 712.8) / (3.037 * plen(lat))]; };
+const CITIES = `Basel|Switzerland|europe|47.56|7.59;Zürich|Switzerland|europe|47.37|8.54;Geneva|Switzerland|europe|46.2|6.14;Bern|Switzerland|europe|46.95|7.45;London|United Kingdom|europe|51.5|-0.13;Paris|France|europe|48.86|2.35;Berlin|Germany|europe|52.52|13.4;Munich|Germany|europe|48.14|11.58;Vienna|Austria|europe|48.21|16.37;Milan|Italy|europe|45.46|9.19;Madrid|Spain|europe|40.42|-3.7;Athens|Greece|europe|37.98|23.73;Reykjavík|Iceland|europe|64.15|-21.94;São Paulo|Brazil|samerica|-23.55|-46.63;Santiago|Chile|samerica|-33.45|-70.67;Lima|Peru|samerica|-12.05|-77.04;La Paz|Bolivia|samerica|-16.5|-68.15;Bogotá|Colombia|samerica|4.71|-74.07;Mendoza|Argentina|samerica|-32.89|-68.84;Punta Arenas|Chile|samerica|-53.16|-70.91;Los Angeles|United States of America|namerica|34.05|-118.24;Chicago|United States of America|namerica|41.88|-87.63;Toronto|Canada|namerica|43.65|-79.38;Cancún|Mexico|namerica|21.16|-86.85;Kyoto|Japan|asia|35.01|135.77;Seoul|South Korea|asia|37.57|126.98;Hanoi|Vietnam|asia|21.03|105.85;Delhi|India|asia|28.61|77.21;Kathmandu|Nepal|asia|27.72|85.32;Nairobi|Kenya|africa|-1.29|36.82;Windhoek|Namibia|africa|-22.56|17.08;Queenstown|New Zealand|oceania|-45.03|168.66`.split(';').map(l => { const [name, country, c, lat, lon] = l.split('|'); const [x, y] = proj(+lat, +lon); return { name, country, c, lat: +lat, lon: +lon, x, y }; });
+const km = (a, b) => { const r = Math.PI / 180, dl = (b.lat - a.lat) * r, dn = (b.lon - a.lon) * r, h = Math.sin(dl / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dn / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
+const fmtKm = d => Math.round(d).toLocaleString('en-US') + ' km';
+const RESULTS = 'Holydays Trip Results.dc.html';
+const TRIP_TYPES = [['city', 'City trip'], ['culture', 'Culture'], ['beach', 'Beach & relax'], ['adventure', 'Adventure & nature'], ['backpacking', 'Backpacking'], ['roadtrip', 'Road trip'], ['family', 'Family']];
+const INTERESTS = ['Culture & history', 'Food', 'Nature', 'Nightlife', 'Shopping', 'Art & museums', 'Architecture', 'Beaches', 'Hiking', 'Photography', 'Local markets', 'Wellness'];
+const TRIP0 = () => ({ tripType: 'city', interests: [], prefOpen: false, origin: CITIES[0], stops: [], back: true, days: 14, budget: 6000, tier: 'comfort', q: '', sug: false, oq: '', osug: false });
+const TIERS = [['budget', 'Budget'], ['comfort', 'Comfort'], ['luxury', 'Luxury']];
+
+class Component extends DCLogic {
+  state = { trip: TRIP0(), plan: false, a: 'europe', bWhere: '', bMonth: 'Summer', bGuests: 2, bMood: 'All', bDone: false, c: 'asia' };
+
+  componentDidMount() {
+    const load = (u, n = 8) => fetch(u).then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .catch(e => n > 0 ? new Promise(res => setTimeout(res, 400)).then(() => load(u, n - 1)) : Promise.reject(e));
+    load('assets/countries.json').then(countries => this.setState({ countries })).catch(e => console.warn('countries', e));
+    load('assets/destinations.json').then(dest => this.setState({ dest })).catch(e => console.warn('destinations', e));
+    this._esc = e => { if (e.key === 'Escape' && document.activeElement) document.activeElement.blur();
+      if (e.key === 'Escape') ['s4a'].forEach(k => this.setState(s => ({ [k]: { ...s[k], open: false, q: '', mood: 'All' } }))); };
+    window.addEventListener('keydown', this._esc);
+    const tq = new URLSearchParams(location.search).get('trip');
+    if (tq) this.prefill(tq);
+  }
+  apiBase() { return (this.props.apiBase ?? 'http://localhost:8000').replace(/\/$/, ''); }
+  prefill(id) {
+    fetch(this.apiBase() + '/api/trips/' + encodeURIComponent(id)).then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .catch(e => id === 'demo' ? fetch('assets/demo-trip.json').then(r => r.json()) : Promise.reject(e))
+      .then(t => this.applyTrip(t.request, id)).catch(e => console.warn('prefill', e));
+  }
+  async applyTrip(req, id) {
+    const norm = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    for (let i = 0; i < 40 && !(this.state.dest && this.state.countries); i++) await new Promise(r => setTimeout(r, 200));
+    const cities = Array.isArray(CITIES) ? CITIES : [];
+    const find = async n => {
+      let p = cities.find(c => norm(c.name) === norm(n)) || (this.state.dest || []).find(d => norm(d.name) === norm(n) && d.lat != null);
+      if (!p) { try { const a = await fetch(this.apiBase() + '/api/geo/search?q=' + encodeURIComponent(n)).then(r => r.json()); if (a && a[0]) p = { name: a[0].name || n, country: a[0].country, lat: a[0].lat, lon: a[0].lon }; } catch (e) {} }
+      if (!p || p.lat == null) return null;
+      const c = p.c || ((this.state.countries || []).find(k => k.n === p.country) || {}).c || 'europe';
+      const [x, y] = p.x != null ? [p.x, p.y] : proj(p.lat, p.lon);
+      return { name: p.name, country: p.country, c, lat: p.lat, lon: p.lon, x, y };
+    };
+    const origin = await find(req.origin);
+    const stops = (await Promise.all(req.stops.map(s => find(s.name).then(p => p && { ...p, nights: s.nights || null })))).filter(Boolean);
+    this.setState(s => ({
+      trip: { ...s.trip, origin: origin || s.trip.origin, stops, back: req.return_to_origin !== false, days: req.days || s.trip.days, budget: Math.round(req.budget || s.trip.budget), tier: req.tier || s.trip.tier, tripType: req.trip_type || s.trip.tripType, interests: req.interests || s.trip.interests || [] },
+      s4a: { ...(s.s4a || SEARCH0), open: false, guests: req.travelers || 2, from: req.start_date || '', to: req.end_date || '' },
+      plan: true, editingTrip: id
+    }));
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._esc); if (this._es) this._es.close(); }
+  imgFor(d) {
+    if (!d || !d.wiki) return '';
+    if (!this._ic) { try { const raw = JSON.parse(localStorage.getItem('holydays-img-cache-v2') || '{}'); this._ic = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== '' || true)); } catch (e) { this._ic = {}; } this._iq = []; this._ib = 0; this._tries = {}; }
+    const c = this._ic[d.wiki];
+    if (c !== undefined) return c || '';
+    if (!this._iq.includes(d.wiki)) { this._iq.push(d.wiki); setTimeout(() => this.pumpImgs(), 0); }
+    return '';
+  }
+  pumpImgs() {
+    if (this._ib >= 2 || !this._iq.length || this._ipause) return;
+    const t = this._iq.shift(); this._ib++;
+    const done = () => { this._ib--; clearTimeout(this._ir); this._ir = setTimeout(() => this.forceUpdate(), 250); setTimeout(() => this.pumpImgs(), 250); };
+    const temp = () => { const n = this._tries[t] = (this._tries[t] || 0) + 1; if (n <= 3) { const w = [3000, 10000, 30000][n - 1]; this._ipause = true; setTimeout(() => { this._ipause = false; this._iq.push(t); this.pumpImgs(); }, w); } };
+    fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t.replace(/ /g, '_')))
+      .then(r => {
+        if (r.status === 404) { this._ic[t] = ''; this.saveImgs(); return; }
+        if (!r.ok) { temp(); return; }
+        return r.json().then(j => { const o = j.originalimage, th = j.thumbnail && j.thumbnail.source; this._ic[t] = o && o.width <= 1400 ? o.source : th ? th.replace(/\/\d+px-/, '/960px-') : ''; this.saveImgs(); });
+      })
+      .catch(() => temp())
+      .finally(done);
+  }
+  saveImgs() { try { localStorage.setItem('holydays-img-cache-v2', JSON.stringify(this._ic)); } catch (e) {} }
+
+
+
+  calVals(st, set) {
+    const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const pad = n => String(n).padStart(2, '0');
+    const iso = (y, m, d) => y + '-' + pad(m + 1) + '-' + pad(d);
+    const now = new Date(), cur = now.getFullYear() * 12 + now.getMonth();
+    const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
+    const base = Math.max(cur, st.calM ?? cur);
+    const from = st.from || '', to = st.to || '';
+    const fmt = k => new Date(k + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const pick = k => {
+      if (!from || to || k < from) set({ from: k, to: '' });
+      else if (k === from) set({ from: '', to: '' });
+      else set({ to: k });
+    };
+    const cal = [0, 1].map(o => {
+      const ym = base + o, y = Math.floor(ym / 12), m = ym % 12;
+      const lead = (new Date(y, m, 1).getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
+      const days = [];
+      for (let i = 0; i < lead; i++) days.push({ label: '', band: 'transparent', br: '0', bg: 'transparent', fg: 'transparent', fw: 400, cur: 'default', op: 0, off: true, pick: () => {} });
+      for (let d = 1; d <= n; d++) {
+        const k = iso(y, m, d), past = k < today, end = k === from || k === to, inR = from && to && k > from && k < to;
+        days.push({ label: d, off: past, op: past ? 0.35 : 1, cur: past ? 'default' : 'pointer',
+          bg: end ? '#24231f' : 'transparent', fg: end ? '#fff' : '#24231f', fw: k === today ? 700 : 500,
+          band: inR || (from && to && end) ? '#efe7d8' : 'transparent',
+          br: from && to && k === from ? '50% 0 0 50%' : from && to && k === to ? '0 50% 50% 0' : '0',
+          pick: () => pick(k) });
+      }
+      return { title: MN[m] + ' ' + y, days };
+    });
+    const nights = from && to ? Math.round((new Date(to) - new Date(from)) / 864e5) : 0;
+    return {
+      cal, wd: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+      calOpen: !!st.cal, calBtnBg: st.cal ? '#f1ece2' : 'transparent', prevOp: base > cur ? 1 : 0.3,
+      calToggle: () => set({ cal: !st.cal }),
+      calPrev: () => set({ calM: Math.max(cur, base - 1) }),
+      calNext: () => set({ calM: base + 1 }),
+      calClear: () => set({ from: '', to: '' }),
+      calDone: () => set({ cal: false }),
+      dateText: from ? fmt(from) + ' – ' + (to ? fmt(to) : 'Add return') : 'Add dates',
+      dateFg: from ? '#24231f' : '#9a958a',
+      calHint: nights ? nights + (nights === 1 ? ' night' : ' nights') + ' · ' + fmt(from) + ' – ' + fmt(to) : from ? 'Select your return date' : 'Select your departure date',
+      whenLabel: from ? [from, to].filter(Boolean).map(fmt).join(' – ') : st.month
+    };
+  }
+
+  submitTrip(req) {
+    const base = (this.props.apiBase ?? 'http://localhost:8000').replace(/\/$/, '');
+    if (this._es) this._es.close();
+    this.setState({ send: { state: 'sending', msg: 'Sending your trip…' } });
+    fetch(base + '/api/trips', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) })
+      .then(r => r.json().then(j => r.ok ? j : Promise.reject(typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail || j))))
+      .then(({ id }) => {
+        this.setState({ send: { state: 'running', msg: 'Opening your trip…', id } });
+        location.href = RESULTS + '?trip=' + encodeURIComponent(id) + '#8c'; return;
+        const es = this._es = new EventSource(base + '/api/trips/' + id + '/events');
+        es.addEventListener('progress', e => { try { this.setState({ send: { state: 'running', msg: JSON.parse(e.data).message, id } }); } catch (_) {} });
+        es.addEventListener('status', e => { es.close(); const s = JSON.parse(e.data);
+          this.setState({ send: s.status === 'done' ? { state: 'done', msg: 'Your trip plan is ready.', id } : { state: 'error', msg: s.error || 'The trip could not be planned.', id } }); });
+        es.onerror = () => { if (es.readyState === 2) return; };
+      })
+      .catch(err => this.setState({ send: { state: 'error', msg: String(err).includes('Failed to fetch') ? 'Backend not reachable.' : String(err) } }));
+  }
+
+  geoSearch(v) {
+    clearTimeout(this._gt);
+    const q = v.trim();
+    if (q.length < 2) return;
+    this._gt = setTimeout(() => {
+      const base = (this.props.apiBase ?? 'http://localhost:8000').replace(/\/$/, '');
+      fetch(base + '/api/geo/search?q=' + encodeURIComponent(q))
+        .then(r => r.ok ? r.json() : Promise.reject(r.status))
+        .then(list => this.setState({ geo: { q, list: Array.isArray(list) ? list : [], ok: true } }))
+        .catch(() => this.setState({ geo: { q, list: null, ok: false } }));
+    }, 180);
+  }
+
+  tripVals(f4, st4, set4) {
+    const T = this.state.trip, plan = this.state.plan;
+    const setT = p => this.setState(s => ({ trip: { ...s.trip, ...p } }));
+    const updS = f => this.setState(s => ({ trip: { ...s.trip, stops: f(s.trip.stops.slice()) } }));
+    if (!this._tpool || this._tpk !== this.state.dest) {
+      this._tpk = this.state.dest;
+      this._tpool = [...CITIES, ...(this.state.dest || []).filter(d => d.lat != null).map(d => { const [x, y] = proj(d.lat, d.lon); return { name: d.name, country: d.country, c: d.c, lat: d.lat, lon: d.lon, x, y }; })];
+    }
+    const pool = this._tpool;
+    const mkStop = p => { if (p.lat == null) return null; const [x, y] = p.x != null ? [p.x, p.y] : proj(p.lat, p.lon); return { name: p.name, country: p.country, c: p.c, lat: p.lat, lon: p.lon, x, y }; };
+    const has = nm => T.stops.some(s => s.name === nm);
+    const add = p => { const s = mkStop(p); if (!s) return; const o = this.state.trip.origin; if (s.name === o.name || km(o, s) < 25) { setT({ q: '', sug: false }); return; } this.setState(x => ({ trip: { ...x.trip, q: '', sug: false, stops: x.trip.stops.some(t => t.name === s.name) ? x.trip.stops : [...x.trip.stops, { ...s, nights: null }] } })); };
+    const toggle = p => has(p.name) ? updS(st => st.filter(s => s.name !== p.name)) : add(p);
+    const fromK = k => { const x = k.x * 13.76, y = k.y * 7.68, [lat, lon] = unproj(x, y); return { name: k.n, country: k.n, c: k.c, lat, lon, x, y }; };
+    const O = T.origin, all = [O, ...T.stops], n = T.stops.length, last = all[all.length - 1];
+    const S = 1650 / 1376; let tx = 0, ty = 0, sc = 1;
+    if (plan) {
+      const fit = T.stops.length ? T.stops : all;
+      const xs = fit.map(p => p.x * S), ys = fit.map(p => p.y * S), pad = 130, A = { x: 470, y: 90, w: 780, h: 690 };
+      const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+      sc = Math.max(0.55, Math.min(2.6, A.w / (x1 - x0), A.h / (y1 - y0)));
+      tx = A.x + (A.w - (x1 - x0) * sc) / 2 - x0 * sc + 185;
+      ty = A.y + (A.h - (y1 - y0) * sc) / 2 - y0 * sc - 2;
+    }
+    const scr = (x, y) => [-185 + tx + x * S * sc, 2 + ty + y * S * sc];
+    const arc = (a, b) => {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1;
+      let nx = -dy / L, ny = dx / L; if (ny > 0) { nx = -nx; ny = -ny; }
+      return `M${a.x},${a.y} Q${mx + nx * L * 0.2},${my + ny * L * 0.2} ${b.x},${b.y}`;
+    };
+    const seq = [...all, ...(T.back && n ? [O] : [])];
+    const legs = seq.slice(1).map((b, i) => ({ d: km(seq[i], b), path: arc(seq[i], b) }));
+    const dated = !!(st4.from && st4.to);
+    const total = dated ? Math.round((new Date(st4.to) - new Date(st4.from)) / 864e5) : T.days - 1;
+    const fixed = T.stops.reduce((a, s) => a + (s.nights || 0), 0), autoN = T.stops.filter(s => !s.nights).length;
+    const share = autoN ? Math.max(0, Math.floor((total - fixed) / autoN)) : 0;
+    const swap = (i, j) => updS(st => { [st[i], st[j]] = [st[j], st[i]]; return st; });
+    const items = T.stops.map((s, i) => ({
+      name: s.name, country: s.country, num: String(i + 1), dot: MAPCOL[s.c] || '#9a958a',
+      legLabel: fmtKm(legs[i].d) + ' from ' + all[i].name,
+      nightsLabel: (s.nights || share) + ((s.nights || share) === 1 ? ' night' : ' nights'),
+      nFg: s.nights ? '#24231f' : '#6b675e',
+      minus: () => updS(st => { const v = st[i].nights; st[i] = { ...st[i], nights: Math.max(1, (v || share) - 1) }; return st; }),
+      plus: () => updS(st => { const v = st[i].nights; st[i] = { ...st[i], nights: Math.min(60, (v || share) + 1) }; return st; }),
+      pDown: ev => {
+        if (ev.button !== 0 || ev.target.closest('button,input')) return;
+        const row = ev.currentTarget, rows = [...row.closest('aside').querySelectorAll('[data-stop]')];
+        this._dm = { y0: ev.clientY, tops: rows.map(r => r.offsetTop), hs: rows.map(r => r.offsetHeight) };
+        row.setPointerCapture(ev.pointerId);
+        this.setState({ drag: { from: i, over: i, dy: 0 } });
+      },
+      pMove: ev => {
+        const d = this.state.drag, m = this._dm; if (!d || d.from !== i || !m) return;
+        const dy = ev.clientY - m.y0, c = m.tops[i] + m.hs[i] / 2 + dy;
+        let over = i;
+        m.tops.forEach((t, j) => { const mid = t + m.hs[j] / 2; if (j > i && c > mid) over = Math.max(over, j); if (j < i && c < mid) over = Math.min(over, j); });
+        this.setState({ drag: { ...d, dy, over } });
+      },
+      pUp: () => {
+        const d = this.state.drag; if (!d || d.from !== i) return;
+        this._dm = null;
+        this.setState({ drag: null, dropT: true });
+        if (d.over !== d.from) updS(st => { const [mv] = st.splice(d.from, 1); st.splice(d.over, 0, mv); return st; });
+        requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ dropT: false })));
+      },
+      ...(() => {
+        const d = this.state.drag, m = this._dm;
+        if (!d || !m) return { tf: 'translateY(0px)', tr: this.state.dropT ? 'none' : 'transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .2s', z: 1, sh: '0 0 0 rgba(0,0,0,0)', cur: 'grab' };
+        if (i === d.from) return { tf: 'translateY(' + d.dy + 'px) scale(1.02)', tr: 'box-shadow .2s', z: 5, sh: '0 14px 34px rgba(40,30,20,.18)', cur: 'grabbing' };
+        const H = m.hs[d.from];
+        const off = d.from < d.over && i > d.from && i <= d.over ? -H : d.over < d.from && i >= d.over && i < d.from ? H : 0;
+        return { tf: 'translateY(' + off + 'px)', tr: 'transform .28s cubic-bezier(.2,.8,.2,1)', z: 1, sh: '0 0 0 rgba(0,0,0,0)', cur: 'grabbing' };
+      })(),
+      remove: () => updS(st => st.filter((_, j) => j !== i))
+    }));
+    const showRoute = plan || (!f4.open && n > 0);
+    const placed = [];
+    const pins = showRoute ? all.map((p, i) => { const [X, Y] = scr(p.x, p.y);
+      const crowded = !plan && placed.some(([a, b]) => Math.abs(a - X) < 90 && Math.abs(b - Y) < 26); placed.push([X, Y]);
+      return { name: p.name, lbl: crowded ? 'none' : 'block', num: i ? String(i) : '', left: X + 'px', top: Y + 'px',
+      bg: i ? '#24231f' : '#fffdf8', fg: i ? '#fff' : '#24231f', bd: i ? '2px solid #fffdf8' : '3px solid #24231f' }; }) : [];
+    const q = T.q.trim().toLowerCase(), names = new Set(all.map(p => p.name));
+    if (!this._cmap || this._cmk !== this.state.countries) {
+      this._cmk = this.state.countries; this._cmap = { 'United States': 'namerica', 'Czech Republic': 'europe', 'Turkey': 'asia', 'Türkiye': 'asia' };
+      (this.state.countries || []).forEach(k => { this._cmap[k.n] = k.c; });
+    }
+    const G = this.state.geo;
+    const live = raw => { const g = G && G.ok && G.q.toLowerCase() === raw ? G.list : null;
+      return g && g.map(p => ({ name: p.name, country: p.country || '', c: this._cmap[p.country] || pool.find(x => x.country === p.country)?.c, lat: p.lat, lon: p.lon })); };
+    const local = raw => pool.filter(p => (p.name + ' ' + p.country).toLowerCase().includes(raw));
+    const qLive = q ? live(q) : null, isLive = !!qLive;
+    const sug = (q ? (qLive || local(q)).slice(0, 6)
+      : pool.filter(p => !names.has(p.name) && km(last, p) > 80).sort((a, b) => km(last, a) - km(last, b)).slice(0, 5))
+      .map(p => ({ name: p.name, country: p.country, dot: MAPCOL[p.c] || '#9a958a', dist: fmtKm(km(last, p)), pick: e => { e.preventDefault(); add(p); } }));
+    const oq = T.oq.trim().toLowerCase(), oLive = oq ? live(oq) : null;
+    const osug = (oq ? (oLive || local(oq)) : CITIES).slice(0, 6)
+      .map(p => ({ name: p.name, country: p.country, dot: MAPCOL[p.c] || '#9a958a', pick: e => { e.preventDefault(); setT({ origin: mkStop(p), oq: '', osug: false }); } }));
+    const geoDown = !!(G && !G.ok);
+    const wq = (st4.q || '').trim().toLowerCase();
+    const wRaw = wq.length >= 2 && G && G.ok && G.q.toLowerCase() === wq ? G.list : [];
+    const whereSug = wRaw.slice(0, 6).map(p => {
+      const s = { name: p.name, country: p.country || '', c: this._cmap[p.country] || pool.find(x => x.country === p.country)?.c, lat: p.lat, lon: p.lon };
+      const on = has(p.name);
+      return { name: p.name, sub: [p.state, p.country].filter(Boolean).join(', '), dot: MAPCOL[s.c] || '#9a958a',
+        label: on ? '✓ In trip' : '+ Add to trip', lbBg: on ? '#24231f' : '#f1ece2', lbFg: on ? '#fff' : '#24231f',
+        pick: e => { e.preventDefault(); on ? updS(st => st.filter(x => x.name !== p.name)) : add(s); } };
+    });
+    const ks = this.state.countries || [], hv = plan && this.state.hov4 != null ? ks[this.state.hov4] : null;
+    const hp = hv ? scr(hv.x * 13.76, hv.y * 7.68) : [0, 0];
+    const blur = () => document.activeElement && document.activeElement.blur();
+    return {
+      whereSug, whereOpen: f4.open && !!this.state.wf && whereSug.length > 0,
+      wFocus: () => { this.setState({ wf: true }); if (!f4.open) { this._openedAt = Date.now(); set4({ open: true }); } },
+      wBlur: () => setTimeout(() => this.setState({ wf: false }), 150),
+      onWhere: e => { set4({ q: e.target.value, open: true }); this.setState({ wf: true }); this.geoSearch(e.target.value); },
+      plan, notPlan: !plan, n, hasStops: n > 0, noStops: n === 0, items, pins,
+      mapTf: plan ? `translate(${tx}px,${ty}px) scale(${sc})` : null, arcs: showRoute ? legs.map(l => ({ d: l.path })) : [],
+      pickCountry: k => { if (plan) add(fromK(k)); else set4({ open: true, q: k.n }); },
+      hasHov: !!hv, hov: hv ? { t: has(hv.n) ? hv.n + ' · in your trip' : '+ Add ' + hv.n + ' as stop ' + (n + 1), x: hp[0] + 'px', y: hp[1] + 'px', fill: MAPCOL[hv.c] } : { t: '', x: '0px', y: '0px', fill: '#000' },
+      card: d => { const on = has(d.name); return { addLabel: on ? '✓ Added' : '+ Add', addBg: on ? '#24231f' : 'rgba(255,253,248,.94)', addFg: on ? '#fff' : '#24231f', add: e => { e.stopPropagation(); toggle(d); } }; },
+      tray: f4.open, originName: O.name, trayStops: T.stops.map(s => ({ name: s.name, remove: () => updS(st => st.filter(x => x.name !== s.name)) })),
+      trayHint: n ? n + (n === 1 ? ' stop' : ' stops') : 'Add places with + to build your route',
+      planBg: n ? '#24231f' : '#cfc9bd',
+      openPlan: () => { blur(); set4({ open: false }); this.setState({ plan: true, hov4: null }); },
+      browse: () => { this.setState({ plan: false }); set4({ open: true }); },
+      pickDates: () => { this.setState({ plan: false }); set4({ open: true, cal: true }); },
+      closePlan: () => this.setState({ plan: false, hov4: null }),
+      q: T.q, onQ: e => { setT({ q: e.target.value, sug: true }); this.geoSearch(e.target.value); }, focus: () => setT({ sug: true }), blurQ: () => setTimeout(() => setT({ sug: false }), 150),
+      sugOpen: T.sug, sug, sugTitle: q ? (isLive || q.length < 2 ? 'Matches' : geoDown ? 'Matches · offline list (backend not reachable)' : 'Searching…') : 'Near ' + last.name,
+      osugTitle: oq ? (oLive ? 'Matches' : geoDown ? 'Offline list (backend not reachable)' : 'Searching…') : 'Popular starting points',
+      oq: T.oq, onOQ: e => { setT({ oq: e.target.value, osug: true }); this.geoSearch(e.target.value); }, ofocus: () => setT({ osug: true }), oblur: () => setTimeout(() => setT({ osug: false }), 150),
+      osugOpen: T.osug, osug,
+      back: T.back, toggleBack: () => setT({ back: !T.back }), backBg: T.back ? '#24231f' : '#d8d3c8', backX: T.back ? '18px' : '2px',
+      dated, notDated: !dated, dateText: f4.dateText, days: T.days + ' days',
+      daysMinus: () => setT({ days: Math.max(2, T.days - 1) }), daysPlus: () => setT({ days: Math.min(90, T.days + 1) }),
+      datedD: dated ? 'flex' : 'none', notDatedD: dated ? 'none' : 'flex', dateLink: dated ? 'Change dates' : 'Exact dates',
+      interestCount: (T.interests || []).length ? (T.interests.length + ' selected') : '',
+      step1: (T.step || 1) === 1, s1: (T.step || 1) === 1 ? 'flex' : 'none', s2: T.step === 2 ? 'flex' : 'none', s3: T.step === 3 ? 'flex' : 'none', s1i: (T.step || 1) === 1 ? 'block' : 'none', s2i: (T.step || 1) > 1 ? 'block' : 'none',
+      stepNum: String(T.step || 1), stepTitle: ['Your route', 'Basics', 'Preferences'][(T.step || 1) - 1], bar2: (T.step || 1) >= 2 ? '#24231f' : '#e4dfd4', bar3: T.step === 3 ? '#24231f' : '#e4dfd4', backLabel: T.step === 3 ? '← Basics' : '← Edit route',
+      datedB: dated ? 'block' : 'none', notDatedB: dated ? 'none' : 'block', guestWord: st4.guests === 1 ? 'traveller' : 'travellers',
+      tierName: (TIERS.find(x => x[0] === T.tier) || TIERS[1])[1], tierHint: { budget: 'Hostels, local food', comfort: 'Mid-range hotels', luxury: 'Top hotels, fine dining' }[T.tier] || '',
+      goNext: () => { if (n) setT({ step: Math.min(3, (T.step || 1) + 1), q: '', sug: false, oq: '', osug: false }); }, goBack: () => setT({ step: Math.max(1, (T.step || 1) - 1) }),
+      nextBg: n ? '#24231f' : '#cfc9bd', nextCur: n ? 'pointer' : 'default',
+      stopsInfo: n ? n + (n === 1 ? ' stop' : ' stops') + ' · ' + total + ' nights' : 'Add at least one stop',
+      routeLine: [O.name, ...T.stops.map(x => x.name), ...(T.back && n ? [O.name] : [])].join(' → '),
+      prefOpen: !!T.prefOpen, prefToggle: () => setT({ prefOpen: !T.prefOpen }), prefChev: T.prefOpen ? 'rotate(225deg)' : 'rotate(45deg)',
+      prefSummary: [(TRIP_TYPES.find(x => x[0] === (T.tripType || 'city')) || TRIP_TYPES[0])[1], ...((T.interests || []).length ? [(T.interests.length > 2 ? T.interests.slice(0, 2).join(', ') + ' +' + (T.interests.length - 2) : T.interests.join(', '))] : [])].join(' · '),
+      typeChips: TRIP_TYPES.map(([k, l]) => { const on = (T.tripType || 'city') === k; return { label: l, on, rbg: on ? '#fffdf8' : '#f7f4ee', ring: on ? 'inset 0 0 0 2px #24231f' : 'none', radio: on ? '5px solid #24231f' : '1.5px solid #b9b2a4', pick: () => setT({ tripType: k }) }; }),
+      interestChips: INTERESTS.map(l => { const on = (T.interests || []).includes(l); return { label: l, on, rbg: on ? '#fffdf8' : '#f7f4ee', ring: on ? 'inset 0 0 0 2px #24231f' : 'none', cbBg: on ? '#24231f' : '#fffdf8', cbBd: on ? '#24231f' : '#b9b2a4', checkOp: on ? 1 : 0, pick: () => setT({ interests: on ? T.interests.filter(x => x !== l) : [...(T.interests || []), l] }) }; }),
+      nightsInfo: total + ' nights total' + (fixed ? ' · ' + fixed + ' fixed' : ''), over: fixed > total, overText: 'Fixed nights (' + fixed + ') are more than the trip length (' + total + ').',
+      guests: st4.guests, gMinus: f4.minus, gPlus: f4.plus,
+      budget: String(T.budget), onBudget: e => setT({ budget: Math.max(0, parseInt(e.target.value.replace(/\D/g, '')) || 0) }),
+      tiers: TIERS.map(([id, label]) => ({ label, bg: T.tier === id ? '#24231f' : 'transparent', fg: T.tier === id ? '#fff' : '#24231f', ring: T.tier === id ? '5.5px solid #24231f' : '1.5px solid #b9b2a4', on: T.tier === id, fw: T.tier === id ? 700 : 500, hint: { budget: 'Hostels, local food', comfort: 'Mid-range hotels', luxury: 'Top hotels, fine dining' }[id], pick: () => setT({ tier: id }) })),
+      ctaBg: n && !(fixed > total) ? '#24231f' : '#cfc9bd',
+      submit: () => {
+        if (!n || fixed > total || (this.state.send && /sending|running/.test(this.state.send.state))) return;
+        const req = { origin: O.name, stops: T.stops.map(s => s.nights ? { name: s.name, nights: s.nights } : { name: s.name }),
+          return_to_origin: T.back, travelers: st4.guests, budget: Math.max(1, T.budget), currency: 'CHF', tier: T.tier, trip_type: T.tripType || 'city', interests: T.interests || [] };
+        if (dated) { req.start_date = st4.from; req.end_date = st4.to; } else req.days = T.days;
+        this.submitTrip(req);
+      },
+      ctaText: this.state.send && /sending|running/.test(this.state.send.state) ? 'Planning…' : 'Plan my trip',
+      hasSend: !!this.state.send, sendMsg: this.state.send ? this.state.send.msg : '',
+      sendFg: this.state.send && this.state.send.state === 'error' ? '#a8432a' : '#4a4740',
+      sendDone: !!(this.state.send && this.state.send.state === 'done'),
+      tripUrl: this.state.send && this.state.send.id ? RESULTS + '?trip=' + encodeURIComponent(this.state.send.id) + '#8c' : '#'
+    };
+  }
+
+  mk(key) {
+    const st = this.state[key] || SEARCH0;
+    const set = p => this.setState(s => ({ [key]: { ...(s[key] || SEARCH0), ...p } }));
+    const q = st.q.trim().toLowerCase();
+    let res = (this.state.dest || DEST).filter(d => st.mood === 'All' || d.mood === st.mood);
+    if (q) res = res.filter(d => [d.name, d.country, d.cn, (contOf(d.c) || {}).name].some(t => (t || '').toLowerCase().includes(q)));
+    const hit = new Set(res.map(d => d.c));
+    const filtering = !!q || st.mood !== 'All';
+    const o = st.open;
+    return {
+      open: o, q: st.q, month: st.month, guests: st.guests,
+      ...this.calVals(st, set),
+      guestLabel: st.guests + (st.guests === 1 ? ' traveller' : ' travellers'),
+      countLabel: res.length === 1 ? '1 place' : res.length + ' places',
+      none: res.length === 0,
+      onQ: e => set({ q: e.target.value, open: true }),
+      openIt: () => set({ open: true }),
+      close: () => set({ open: false, q: '', mood: 'All' }),
+      toggle: () => set({ open: !o }),
+      minus: () => set({ guests: Math.max(1, st.guests - 1) }),
+      plus: () => set({ guests: Math.min(12, st.guests + 1) }),
+      months: ['Spring', 'Summer', 'Autumn', 'Winter'].map(m => ({
+        label: m, bg: m === st.month ? '#24231f' : 'transparent', bg2: m === st.month ? '#24231f' : '#ebe6dc', fg: m === st.month ? '#fff' : '#24231f',
+        pick: () => set({ month: m })
+      })),
+      moods: ['All', 'Beach', 'City', 'Nature'].map(m => ({
+        label: m, bg: m === st.mood ? '#c2714e' : '#ebe6dc', fg: m === st.mood ? '#fff' : '#24231f',
+        pick: () => set({ mood: m })
+      })),
+      hs: CONT.map(c => {
+        const on = filtering && hit.has(c.id);
+        return { ...c, x: POS[c.id][0] + '%', y: POS[c.id][1] + '%', bg: on ? c.color : '#fffdf8', fg: on ? '#fff' : '#24231f',
+          op: filtering && !on ? 0.4 : 1, pick: () => set({ open: true, q: c.name }) };
+      }),
+      res: res.map((d, i) => ({ ...d, color: contOf(d.c).color, contName: contOf(d.c).name,
+        op: o ? 1 : 0, y: o ? '0px' : '24px', delay: o ? (0.25 + Math.min(i, 9) * 0.05).toFixed(2) + 's' : '0s' }))
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const aSelC = contOf(s.a);
+    const aHs = {}, aPick = {};
+    CONT.forEach(c => {
+      const on = c.id === s.a;
+      aHs[c.id] = { bg: on ? c.color : '#fffdf8', fg: on ? '#fff' : '#24231f' };
+      aPick[c.id] = () => this.setState({ a: c.id });
+    });
+
+    const moods = ['All', 'Beach', 'City', 'Nature'];
+    const q = s.bWhere.trim().toLowerCase();
+    let bDest = DEST.filter(d => s.bMood === 'All' || d.mood === s.bMood);
+    if (q) bDest = bDest.filter(d => [d.name, d.country, contOf(d.c).name].some(t => t.toLowerCase().includes(q)));
+    bDest = bDest.slice(0, 6).map(d => ({ ...d, color: contOf(d.c).color, contName: contOf(d.c).name }));
+
+
+    const f4 = this.mk('s4a'), set4 = p => this.setState(s => ({ s4a: { ...(s.s4a || SEARCH0), ...p } }));
+    const tp = this.tripVals(f4, this.state.s4a || SEARCH0, set4);
+    const hv = this.state.hov4 != null && this.state.countries ? this.state.countries[this.state.hov4] : null;
+    const v4a = { ...f4, barTop: f4.open ? '84px' : tp.plan ? '880px' : '700px', barW: f4.open ? '1200px' : '640px',
+      barR: f4.open ? '20px' : '999px', inPad: f4.open ? '10px 18px' : '0 20px', ph: f4.open ? 'Anywhere' : 'Where do you want to go?', inW: f4.open ? 500 : 400,
+      btnR: f4.open ? '14px' : '999px', btnH: f4.open ? '60px' : '48px', btnPad: f4.open ? '30px' : '26px', btnW: f4.open ? 600 : 500, btnText: f4.open ? 'Find trips' : 'Search',
+      months: f4.months.map(m => ({ ...m, bg2: m.bg === 'transparent' ? '#f2eee6' : m.bg })),
+      mapOp: f4.open ? 0.15 : 1, mapBlur: f4.open ? 'blur(6px)' : 'blur(0px)', mapTf: tp.plan ? tp.mapTf : f4.open ? 'scale(1.06)' : 'scale(1)', mapOrigin: tp.plan ? '0 0' : '50% 50%',
+      res: f4.res.map(d => ({ ...d, img: d.img || this.imgFor(d), ...tp.card(d) })),
+      panelOp: f4.open ? 1 : 0, panelY: f4.open ? '0px' : '40px', pe: f4.open ? 'auto' : 'none',
+      countries: (this.state.countries || []).map((k, i) => ({ ...k, fill: MAPCOL[k.c],
+        enter: () => this.state.hov4 !== i && this.setState({ hov4: i }), pick: () => tp.pickCountry(k) })),
+      unhover: () => this.setState({ hov4: null }),
+      leave: () => this.setState({ hov4: null, near4: '' }),
+      bgClick: e => { if (Date.now() - (this._openedAt || 0) < 600) return;
+        if (tp.plan) { if (!e.target.closest('aside,button,input,label,a,[data-keep],path')) tp.browse(); return; }
+        if (f4.open && !e.target.closest('button,input,label,a,[data-keep]')) { if (document.activeElement) document.activeElement.blur(); f4.close(); } },
+      close: () => { if (document.activeElement) document.activeElement.blur(); f4.close(); },
+      openIt: () => { if (!f4.open) { this._openedAt = Date.now(); f4.openIt(); } },
+      move: e => {
+        const r = e.currentTarget.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        const near = CONT.filter(c => Math.hypot((px - POS[c.id][0] / 100) * 1650, (py - POS[c.id][1] / 100) * 921) < 170).map(c => c.id).join(',');
+        if (near !== (this.state.near4 || '')) this.setState({ near4: near });
+      },
+      pills: tp.plan ? [] : CONT.map(c => {
+        const hide = f4.open || (this.state.near4 || '').split(',').includes(c.id);
+        return { name: c.name, x: POS[c.id][0] + '%', y: POS[c.id][1] + '%', op: hide ? 0 : 1, sc: hide ? 0.85 : 1,
+          pick: () => { this.setState({ hov4: null }); set4({ open: true, q: c.name }); } };
+      }),
+      hasHov: !!hv && !f4.open && !tp.plan,
+      hov: hv ? { n: hv.n, x: hv.x + '%', y: hv.y + '%', fill: MAPCOL[hv.c] } : { n: '', x: '0%', y: '0%', fill: '#000' },
+      hovEl: hv && !f4.open ? React.createElement('path', { key: this.state.hov4, d: hv.d, fill: MAPCOL[hv.c], stroke: '#fffdf8', strokeWidth: 1, strokeLinejoin: 'round',
+        style: { '--s': hv.s, transformBox: 'fill-box', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 6px 6px rgba(36,35,31,.35))', animation: 'countryPop .28s cubic-bezier(.3,1.6,.5,1) forwards' } }) : null
+    };
+    return {
+      v4a, tp,
+      aHs, aPick, aSel: aSelC,
+      aDest: DEST.filter(d => d.c === s.a),
+
+      bWhere: s.bWhere,
+      bSetWhere: e => this.setState({ bWhere: e.target.value, bDone: false }),
+      bMonths: ['Spring', 'Summer', 'Winter'].map(m => ({
+        label: m, bg: m === s.bMonth ? '#24231f' : '#f4efe6', fg: m === s.bMonth ? '#fff' : '#24231f',
+        pick: () => this.setState({ bMonth: m })
+      })),
+      bGuests: s.bGuests,
+      bMinus: () => this.setState({ bGuests: Math.max(1, s.bGuests - 1) }),
+      bPlus: () => this.setState({ bGuests: Math.min(12, s.bGuests + 1) }),
+      bGo: () => this.setState({ bDone: true }),
+      bDone: s.bDone,
+      bSummary: `${s.bWhere || 'anywhere'}, ${s.bMonth.toLowerCase()}, ${s.bGuests} ${s.bGuests === 1 ? 'traveller' : 'travellers'}`,
+      bMoods: moods.map(m => ({
+        label: m, bg: m === s.bMood ? '#24231f' : 'transparent', fg: m === s.bMood ? '#fff' : '#24231f',
+        pick: () => this.setState({ bMood: m })
+      })),
+      bDest
+    };
+  }
+}
+</script>
+</body>
+</html>

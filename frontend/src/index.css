@@ -1,0 +1,42 @@
+/* Holydays – design tokens from design_handoff_holydays/README.md. Most styles are inline in the
+   components (as in the design files); this file holds the base, hover states and animations. */
+:root {
+  --ink: #24231f; --ink-2: #4a4740; --muted: #6b675e; --faint: #9a958a;
+  --page: #f7f5f0; --card: #fffdf8; --soft: #f7f4ee; --line: #ece6da; --accent: #bc7654;
+  font-family: 'DM Sans', system-ui, sans-serif; color: var(--ink); background: var(--page);
+  -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+input { font-family: inherit; }
+a { color: var(--ink); text-decoration: none; }
+a:hover { color: #b8643f; }
+
+@keyframes countryPop { from { transform: scale(1) translateY(0); } to { transform: scale(var(--s)) translateY(-3px); } }
+@keyframes hrSpin { to { transform: rotate(360deg); } }
+
+/* hover states (the design's style-hover attributes) */
+.hb-pill:hover { transform: translate(-50%, -50%) scale(1.08) !important; box-shadow: 0 6px 16px rgba(0,0,0,.16) !important; }
+.hb-grow:hover { transform: scale(1.05); }
+.hb-row:hover, .hb-step:hover, .hb-x:hover, .hb-round:hover, .hb-calbtn:hover { background: #f1ece2 !important; }
+.hb-step:hover, .hb-x:hover { color: var(--ink) !important; }
+.hb-row2:hover { background: #f7f2e9 !important; }
+.hb-tray-x:hover { background: #4a4740 !important; color: #fff !important; }
+.hb-light:hover { background: #e8dcc8 !important; }
+.hb-cta:hover { filter: brightness(1.15); }
+.hb-chip:hover { background: var(--card) !important; }
+.hb-ring:hover { border-color: var(--ink) !important; }
+.hb-day:hover:not(:disabled) { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.hb-accent:hover { background: var(--accent) !important; }
+.hb-outline:hover { background: rgba(36,35,31,.06); }
+
+.hr-opt:hover { box-shadow: inset 0 0 0 2px #9a958a !important; }
+.hr-stop:hover { background: #fbf8f2; }
+.hr-title:hover { background: rgba(255,255,255,.12); }
+.hr-title:focus { background: rgba(20,18,15,.45) !important; box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+.hr-ghost:hover { background: rgba(255,255,255,.15) !important; }
+.hr-close:hover { background: #fff !important; }
+.hr-pillbtn:hover, .hr-att:hover { border-color: var(--ink) !important; }
+.hr-src:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
+.hr-dark:hover { background: var(--accent) !important; }

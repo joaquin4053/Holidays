@@ -1,0 +1,13 @@
+{
+  "origin": "Zurich",
+  "stops": [{"name": "Shanghai"}, {"name": "Beijing"}, {"name": "Chengdu"}, {"name": "Shenzhen"}],
+  "return_to_origin": true,
+  "start_date": "2027-04-10",
+  "end_date": "2027-04-23",
+  "travelers": 2,
+  "budget": 4000,
+  "currency": "CHF",
+  "trip_type": "backpacking",
+  "interests": ["Food", "Culture & history"],
+  "tier": "budget"
+}

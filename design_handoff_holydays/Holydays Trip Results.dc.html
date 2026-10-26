@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;family=DM+Mono:wght@400;500&amp;family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#e8e5de;font-family:'DM Sans',sans-serif;color:#24231f;-webkit-font-smoothing:antialiased}
+a{color:#24231f;text-decoration:none}
+a:hover{color:#b8643f}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+</style>
+</helmet>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:500 13px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6b675e">Turn 8 · Variations of 7a</div>
+    <div style="font-size:15px;color:#4a4740;max-width:820px;text-wrap:pretty">Budget-first layout based on 7a, filled with backend data. Clicking a class or a connection recalculates everything. "Edit route" links back to the Trip Builder.</div>
+    <div style="display:flex;align-items:center;gap:10px;font-size:14px">
+      <button onClick="{{ replay }}" style="border:1px solid #24231f;background:transparent;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600">Replay loading</button>
+      <span style="color:{{ statusFg }}">{{ statusText }}</span>
+    </div>
+  </div>
+  <div id="row8" style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <div id="8c" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">8c</span><span style="font-size:14px;color:#4a4740">Photo header: the stops as a photo band with the total on top, costs as tiles</span></div>
+      <div data-screen-label="8c Photo header" style="width:1280px;min-height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <div style="position:absolute;inset:0;z-index:20;background:#f7f5f0;opacity:{{ L.op }};pointer-events:{{ L.pe }};visibility:{{ L.vis }};transition:{{ L.tr }};display:flex;flex-direction:column;align-items:center;padding-top:250px;gap:24px">
+          <div style="position:absolute;top:22px;left:40px;font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+          <div style="font-size:15px;color:#6b675e">{{ L.route }}</div>
+          <div style="font:700 44px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ L.title }}</div>
+          <div style="width:560px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px"><span style="font-size:15px;color:#4a4740;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ L.msg }}</span><span style="font:700 22px 'Bricolage Grotesque',sans-serif;font-variant-numeric:tabular-nums">{{ L.pct }}</span></div>
+            <div style="height:8px;border-radius:999px;background:#e4dfd4;overflow:hidden"><div style="height:100%;width:{{ L.w }};background:{{ L.barCol }};border-radius:999px;transition:width .4s ease"></div></div>
+            <div style="font-size:13px;color:#9a958a">{{ L.hint }}</div>
+          </div>
+        </div>
+        <sc-if value="{{ R.ready }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;height:400px;display:flex;gap:3px;background:#24231f">
+            <sc-for list="{{ R.places }}" as="p" hint-placeholder-count="2">
+              <div role="img" aria-label="{{ p.name }}" style="flex:1;position:relative;background:{{ p.bgImg }};background-size:cover;background-position:center">
+                <span style="position:absolute;left:16px;top:84px;background:rgba(255,253,248,.94);color:#24231f;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600">{{ p.num }} · {{ p.name }}</span>
+              </div>
+            </sc-for>
+            <div style="position:absolute;inset:0;background:linear-gradient(rgba(20,18,15,.45),rgba(20,18,15,0) 26%,rgba(20,18,15,.4) 52%,rgba(20,18,15,.88));pointer-events:none"></div>
+            <header style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:22px 40px;color:#fff">
+              <div style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <a href="{{ editUrl }}" style="border:1px solid #fff;color:#fff;padding:9px 18px;border-radius:999px;font-size:14px">Edit route</a>
+                <button style="border:none;background:#fff;color:#24231f;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600">Save trip</button>
+              </div>
+            </header>
+            <div style="position:absolute;left:40px;right:40px;bottom:32px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px;color:#fff">
+              <div style="display:flex;flex-direction:column;gap:8px;width:640px;max-width:100%">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <input value="{{ R.title }}" onChange="{{ R.onTitle }}" onBlur="{{ R.onTitleBlur }}" onKeyDown="{{ R.onTitleKey }}" placeholder="{{ R.autoTitle }}" aria-label="Trip title" spellcheck="false" style="flex:1;min-width:0;margin:0 0 0 -8px;padding:2px 8px;border:none;border-radius:10px;background:transparent;color:#fff;font:700 48px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.04em;outline:none;text-overflow:ellipsis" style-hover="background:rgba(255,255,255,.12)" style-focus="background:rgba(20,18,15,.45);box-shadow:0 0 0 2px rgba(255,255,255,.7)">
+                  <sc-if value="{{ R.titleEdited }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ R.resetTitle }}" style="flex-shrink:0;border:1px solid rgba(255,255,255,.7);background:transparent;color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600" style-hover="background:rgba(255,255,255,.15)">Reset</button>
+                  </sc-if>
+                </div>
+                <span style="font-size:18px;font-weight:600">{{ R.routeLabel }}</span>
+                <span style="font-size:15px">{{ R.meta }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;text-align:right">
+                <span style="font-size:14px;font-weight:600">Estimated total · {{ R.tierLabel }}</span>
+                <span style="font-size:60px;line-height:1;font-weight:700;letter-spacing:-.045em;font-variant-numeric:tabular-nums">{{ R.totalShort }}</span>
+                <span style="font-size:15px">{{ R.perPerson }}</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding:32px 40px 64px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:40px;min-width:0">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px"><h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">Your stops</h2><span style="font-size:14px;color:#6b675e;white-space:nowrap">Pick how you travel between stops · {{ R.tierLabel }}</span></div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ R.flow }}" as="f" hint-placeholder-count="0">
+                  <div style="display:flex;flex-direction:column">
+                    <sc-if value="{{ f.isLeg }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0">
+                        <span style="height:20px;border-left:2px dotted #b9b2a4;opacity:{{ f.topOp }}"></span>
+                        <div style="width:100%;max-width:620px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px">
+                            <sc-for list="{{ f.leg.opts }}" as="o" hint-placeholder-count="2">
+                              <button onClick="{{ o.pick }}" aria-pressed="{{ o.on }}" aria-label="{{ o.mode }}, {{ o.dur }}, {{ o.price }} per person" title="{{ o.mode }}" style="position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;padding:7px 30px 7px 10px;border:none;border-radius:12px;background:#fffdf8;color:#24231f;box-shadow:{{ o.ring }};text-align:left;transition:box-shadow .2s" style-hover="box-shadow:inset 0 0 0 2px #9a958a">
+                                <span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;white-space:nowrap">
+                                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="flex-shrink:0;fill:#24231f"><path d="{{ o.icon }}"></path></svg>
+                                  <span style="font-weight:700">{{ o.dur }}</span>
+                                  <span style="color:#6b675e;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis">{{ o.price }}</span>
+                                </span>
+                                <span style="display:flex;gap:4px;min-height:16px">
+                                  <sc-for list="{{ o.tagList }}" as="tg" hint-placeholder-count="0">
+                                    <span style="font-size:10px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;white-space:nowrap;background:{{ tg.bg }};color:{{ tg.fg }}">{{ tg.label }}</span>
+                                  </sc-for>
+                                </span>
+                                <span style="position:absolute;top:8px;right:9px;width:14px;height:14px;box-sizing:border-box;border-radius:50%;border:1.5px solid {{ o.dotBd }};background:{{ o.dotBg }};display:flex;align-items:center;justify-content:center">
+                                  <svg viewBox="0 0 12 12" width="9" height="9" aria-hidden="true" style="opacity:{{ o.checkOp }}"><path d="M2.5 6.2l2.2 2.2 4.8-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                </span>
+                              </button>
+                            </sc-for>
+                        </div>
+                        <span style="height:20px;border-left:2px dotted #b9b2a4;opacity:{{ f.botOp }}"></span>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ f.isPlace }}" hint-placeholder-val="{{ false }}">
+                  <div style="background:#fffdf8;border-radius:22px;overflow:hidden;box-shadow:{{ f.place.shadow }};transition:box-shadow .25s">
+                    <div onClick="{{ f.place.toggle }}" role="button" aria-haspopup="dialog" style="display:grid;grid-template-columns:180px minmax(0,1fr) 210px;cursor:pointer" style-hover="background:#fbf8f2">
+                    <div style="position:relative;min-height:150px;background:#cfc6b6">
+                      <div role="img" aria-label="{{ f.place.name }}" style="position:absolute;inset:0;background:{{ f.place.bgImg }};background-size:cover;background-position:center"></div>
+                      <span style="position:absolute;left:14px;top:14px;width:30px;height:30px;border-radius:50%;background:#fffdf8;color:#24231f;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">{{ f.place.num }}</span>
+                    </div>
+                    <div style="padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0">
+                      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-width:0">
+                        <span style="font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.05">{{ f.place.name }}</span>
+                        <span style="font-size:14px;color:#6b675e">{{ f.place.country }} · {{ f.place.nightsLabel }}</span>
+                      </div>
+                      <div style="flex-shrink:0;width:130px;display:flex;flex-direction:column;gap:7px">
+                        <div style="display:flex;justify-content:space-between;gap:16px;font-size:13px"><span style="color:#6b675e">Stay</span><span style="font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap">{{ f.place.stayAvg }}</span></div>
+                        <div style="display:flex;justify-content:space-between;gap:16px;font-size:13px"><span style="color:#6b675e">Meal</span><span style="font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap">{{ f.place.mealAvg }}</span></div>
+                        <div style="display:flex;justify-content:space-between;gap:16px;font-size:13px"><span style="color:#6b675e">Local</span><span style="font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap">{{ f.place.localAvg }}</span></div>
+                      </div>
+                    </div>
+                    <div style="padding:20px 24px;border-left:1px solid #ece6da;display:flex;flex-direction:column;justify-content:center;gap:6px">
+                      <span style="font-size:12px;font-weight:600;color:#6b675e">Total</span>
+                      <span style="font-size:32px;font-weight:700;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap">{{ f.place.stopShort }}</span>
+                    </div>
+                    </div>
+                  </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            </div>
+            <div style="position:sticky;top:24px;display:flex;flex-direction:column;gap:16px">
+              <aside style="position:relative;background:#fffdf8;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 8px 30px rgba(40,30,20,.08)">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:13px;font-weight:700;color:#6b675e">Estimated total</span>
+                <span style="font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums">{{ R.total }}</span>
+                <span style="font-size:14px;color:#6b675e">{{ R.perPerson }}</span>
+              </div>
+              <span style="align-self:flex-start;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;background:{{ R.statusBg }};color:{{ R.statusFg }}">{{ R.statusText }}</span>
+              <div style="display:flex;gap:2px;background:#ebe6dc;border-radius:999px;padding:3px">
+                <sc-for list="{{ R.tiers }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.pick }}" style="flex:1;border:none;border-radius:999px;padding:8px 0;font-size:13px;font-weight:600;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ R.cats }}" as="c" hint-placeholder-count="5">
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ c.label }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ c.amount }}</span></div>
+                    <div style="height:6px;border-radius:999px;background:#ebe6dc;overflow:hidden"><div style="height:100%;width:{{ c.w }};background:{{ c.color }};border-radius:999px;transition:width .5s"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:13px;color:#6b675e">Budget {{ R.budget }}</div>
+              <button style="border:none;background:#24231f;color:#f7f5f0;border-radius:14px;height:50px;font-size:15px;font-weight:600" style-hover="background:#bc7654">Save trip</button>
+            </aside>
+              <sc-if value="{{ R.hasSavings }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fffdf8;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 3px rgba(40,30,20,.06)">
+                  <h2 style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em">Ways to save</h2>
+                  <sc-for list="{{ R.savings }}" as="v" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #ece6da">
+                      <span style="font-size:14px;text-wrap:pretty">{{ v.label }}</span>
+                      <span style="font-size:14px;font-weight:600;color:#3e5a2c;white-space:nowrap;font-variant-numeric:tabular-nums">{{ v.saves }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ R.hasOpen }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ R.closeStop }}" style="position:absolute;inset:0;z-index:30;background:rgba(20,18,15,.5);backdrop-filter:blur(3px)"></div>
+            <div role="dialog" aria-modal="true" aria-label="{{ R.openPlace.name }}" style="position:absolute;z-index:31;top:70px;left:50%;transform:translateX(-50%);width:1000px;background:#fffdf8;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(20,18,15,.35);display:flex;flex-direction:column">
+              <div style="position:relative;height:200px;background:#cfc6b6">
+                <div role="img" aria-label="{{ R.openPlace.name }}" style="position:absolute;inset:0;background:{{ R.openPlace.bgImg }};background-size:cover;background-position:center"></div>
+                <div style="position:absolute;inset:0;background:linear-gradient(rgba(20,18,15,.3),rgba(20,18,15,0) 35%,rgba(20,18,15,.82))"></div>
+                <button onClick="{{ R.closeStop }}" aria-label="Close" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border:none;border-radius:50%;background:rgba(255,253,248,.94);color:#24231f;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center" style-hover="background:#fff">×</button>
+                <div style="position:absolute;left:28px;right:28px;bottom:22px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;color:#fff">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="font-size:13px;font-weight:600">Stop {{ R.openPlace.num }} · {{ R.openPlace.country }} · {{ R.openPlace.nightsLabel }}</span>
+                    <span style="font-size:46px;font-weight:700;letter-spacing:-.04em;line-height:1">{{ R.openPlace.name }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                    <span style="font-size:13px;font-weight:600">Cost at this stop</span>
+                    <span style="font-size:30px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums">{{ R.openPlace.stopShort }}</span>
+                  </div>
+                </div>
+              </div>
+              <div style="max-height:560px;overflow-y:auto;padding:24px 28px 28px;box-sizing:border-box;display:flex;flex-direction:column;gap:22px;scrollbar-width:thin">
+                <sc-if value="{{ R.openPlace.hasKnown }}" hint-placeholder-val="{{ false }}"><p style="margin:0;max-width:760px;font-size:20px;line-height:1.4;font-weight:600;letter-spacing:-.01em;text-wrap:pretty">{{ R.openPlace.knownFor }}</p></sc-if>
+                <sc-if value="{{ R.openPlace.hasSummary }}" hint-placeholder-val="{{ false }}"><p style="margin:-10px 0 0;max-width:760px;font-size:15px;line-height:1.55;color:#4a4740;text-wrap:pretty">{{ R.openPlace.summaryT }}</p></sc-if>
+                <div style="display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:32px;align-items:start">
+                  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+                    <div style="display:flex;flex-direction:column;gap:12px">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                        <span style="font-size:18px;font-weight:700;letter-spacing:-.01em">Things to do</span>
+                        <div style="display:flex;gap:4px">
+                          <sc-for list="{{ R.openPlace.filters }}" as="fl" hint-placeholder-count="3"><button onClick="{{ fl.pick }}" style="padding:5px 11px;border-radius:999px;border:1px solid {{ fl.bd }};background:{{ fl.bg }};color:{{ fl.fg }};font-size:12px;font-weight:600">{{ fl.label }}</button></sc-for>
+                        </div>
+                      </div>
+                      <span style="font-size:13px;color:#6b675e;font-variant-numeric:tabular-nums">{{ R.openPlace.attSummary }}</span>
+                      <div style="display:flex;flex-direction:column">
+                        <sc-for list="{{ R.openPlace.attsShown }}" as="a" hint-placeholder-count="3">
+                          <div style="display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #ece6da">
+                            <span style="width:36px;height:36px;border-radius:10px;background:{{ a.kindBg }};color:{{ a.kindFg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;opacity:{{ a.rowOp }}">{{ a.kindShort }}</span>
+                            <div style="display:flex;flex-direction:column;gap:2px;min-width:0;opacity:{{ a.rowOp }}">
+                              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:15px;font-weight:700">{{ a.name }}</span><span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:{{ a.whenBg }};color:{{ a.whenFg }}">{{ a.when }}</span></div>
+                              <span style="font-size:13px;color:#4a4740;text-wrap:pretty">{{ a.desc }} · <strong style="font-weight:700;color:#24231f;font-variant-numeric:tabular-nums">{{ a.price }}</strong></span>
+                            </div>
+                            <button onClick="{{ a.toggle }}" style="min-width:76px;height:30px;padding:0 12px;border-radius:999px;border:1px solid {{ a.btnBd }};background:{{ a.btnBg }};color:{{ a.btnFg }};font-size:12px;font-weight:700" style-hover="border-color:#24231f">{{ a.btn }}</button>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <span style="font-size:18px;font-weight:700;letter-spacing:-.01em;padding-bottom:8px">Day plan</span>
+                      <sc-for list="{{ R.openPlace.dayList }}" as="d" hint-placeholder-count="2">
+                        <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #ece6da">
+                          <span style="font-size:13px;font-weight:700;color:#bc7654;padding-top:1px">{{ d.label }}</span>
+                          <div style="display:flex;flex-direction:column;gap:2px">
+                            <span style="font-size:15px;font-weight:700">{{ d.title }}</span>
+                            <span style="font-size:13px;color:#4a4740">{{ d.items }}</span>
+                            <sc-if value="{{ d.hasNotes }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#6b675e">{{ d.notes }}</span></sc-if>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+                    <div style="background:#f7f4ee;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px">
+                      <span style="font-size:16px;font-weight:700">Your stay</span>
+                      <div style="display:flex;flex-direction:column;gap:6px">
+                        <span style="font-size:13px;font-weight:600;color:#4a4740">Hotel</span>
+                        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:#ebe6dc;border-radius:12px;padding:3px">
+                          <sc-for list="{{ R.openPlace.accPick }}" as="k" hint-placeholder-count="3">
+                            <button onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:6px 10px;border:none;border-radius:9px;background:{{ k.bg }};color:{{ k.fg }};transition:background .2s, color .2s"><span style="font-size:13px;font-weight:700">{{ k.label }}</span><span style="font-size:11px;color:{{ k.sub }};font-variant-numeric:tabular-nums;white-space:nowrap">{{ k.price }}</span></button>
+                          </sc-for>
+                        </div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;gap:6px">
+                        <span style="font-size:13px;font-weight:600;color:#4a4740">Food</span>
+                        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:#ebe6dc;border-radius:12px;padding:3px">
+                          <sc-for list="{{ R.openPlace.foodPick }}" as="k" hint-placeholder-count="3">
+                            <button onClick="{{ k.pick }}" aria-pressed="{{ k.on }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:6px 10px;border:none;border-radius:9px;background:{{ k.bg }};color:{{ k.fg }};transition:background .2s, color .2s"><span style="font-size:13px;font-weight:700">{{ k.label }}</span><span style="font-size:11px;color:{{ k.sub }};font-variant-numeric:tabular-nums;white-space:nowrap">{{ k.price }}</span></button>
+                          </sc-for>
+                        </div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;padding-top:4px"><span style="font-weight:600;color:#4a4740">Local transport</span><span style="font-weight:700;font-variant-numeric:tabular-nums">{{ R.openPlace.localAvg }} / day</span></div>
+                      <span style="font-size:12px;color:#6b675e;text-wrap:pretty">Applies to {{ R.openPlace.name }} only. The total updates right away.</span>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                      <span style="font-size:16px;font-weight:700">What to eat</span>
+                      <sc-if value="{{ R.openPlace.hasDishes }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                          <sc-for list="{{ R.openPlace.dishes }}" as="k" hint-placeholder-count="2">
+                            <div style="display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid #ece6da"><span style="font-size:15px;font-weight:700">{{ k.name }}</span><span style="font-size:13px;line-height:1.45;color:#4a4740;text-wrap:pretty">{{ k.desc }}</span></div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ R.openPlace.noDishes }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#6b675e">No local dishes listed yet.</span></sc-if>
+                      <span style="font-size:13px;color:#6b675e">{{ R.openPlace.mealLine }}</span>
+                    </div>
+                    <sc-if value="{{ R.openPlace.hasSrcs }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:8px">
+                        <span style="font-size:12px;font-weight:600;color:#6b675e">Sources</span>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap">
+                          <sc-for list="{{ R.openPlace.srcs }}" as="u" hint-placeholder-count="0"><a href="{{ u.url }}" target="_blank" rel="noopener" style="font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid #e2dccf;color:#4a4740" style-hover="border-color:#24231f;color:#24231f">{{ u.host }}</a></sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;border-top:1px solid #ece6da;background:#f7f4ee">
+                <button onClick="{{ R.prevStop }}" style="display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:1px solid #cfc9bd;border-radius:999px;background:#fffdf8;font-size:14px;font-weight:600;white-space:nowrap" style-hover="border-color:#24231f">← {{ R.openPlace.prevName }}</button>
+                <button onClick="{{ R.nextStop }}" style="display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:1px solid #cfc9bd;border-radius:999px;background:#fffdf8;font-size:14px;font-weight:600;white-space:nowrap" style-hover="border-color:#24231f">{{ R.openPlace.nextName }} →</button>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font:500 13px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6b675e">Turn 7 · Loading screen + trip results</div>
+    <div style="font-size:15px;color:#4a4740;max-width:820px;text-wrap:pretty">Three layouts for the results page, all filled with the trip from your backend (<span style="font-family:'DM Mono',monospace;font-size:13px">GET /api/trips/{id}</span>). Each frame first shows the loading screen with a progress bar, then the results appear. Open the file with <span style="font-family:'DM Mono',monospace;font-size:13px">?trip=&lt;id&gt;</span> to load a real trip; without it the demo trip is used.</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px">
+      <span style="color:#6b675e">Trip</span>
+      <input value="{{ idIn }}" onChange="{{ onIdIn }}" placeholder="{{ tripId }}" style="width:150px;border:1px solid #cfc9bd;border-radius:8px;padding:7px 10px;background:#f7f5f0;font:500 13px 'DM Mono',monospace;outline:none">
+      <button onClick="{{ loadIn }}" style="border:none;background:#24231f;color:#f7f5f0;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600">Load</button>
+      <button onClick="{{ replay }}" style="border:1px solid #24231f;background:transparent;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600">Replay loading</button>
+      <span style="color:{{ statusFg }}">{{ statusText }}</span>
+    </div>
+  </div>
+  <div id="row7" style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <div id="7a" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">7a</span><span style="font-size:14px;color:#4a4740">Budget first: total, class and costs at the top, route below</span></div>
+      <div data-screen-label="7a Budget first" style="width:1280px;min-height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <div style="position:absolute;inset:0;z-index:20;background:#f7f5f0;opacity:{{ L.op }};pointer-events:{{ L.pe }};visibility:{{ L.vis }};transition:{{ L.tr }};display:flex;flex-direction:column;align-items:center;padding-top:250px;gap:24px">
+          <div style="position:absolute;top:22px;left:40px;font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+          <div style="font-size:15px;color:#6b675e">{{ L.route }}</div>
+          <div style="font:700 44px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ L.title }}</div>
+          <div style="width:560px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px"><span style="font-size:15px;color:#4a4740;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ L.msg }}</span><span style="font:700 22px 'Bricolage Grotesque',sans-serif;font-variant-numeric:tabular-nums">{{ L.pct }}</span></div>
+            <div style="height:8px;border-radius:999px;background:#e4dfd4;overflow:hidden"><div style="height:100%;width:{{ L.w }};background:{{ L.barCol }};border-radius:999px;transition:width .4s ease"></div></div>
+            <div style="font-size:13px;color:#9a958a">{{ L.hint }}</div>
+          </div>
+        </div>
+        <sc-if value="{{ R.ready }}" hint-placeholder-val="{{ false }}">
+          <header style="display:flex;align-items:center;justify-content:space-between;padding:22px 40px">
+            <div style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button style="border:1px solid #24231f;background:transparent;padding:9px 18px;border-radius:999px;font-size:14px">Edit route</button>
+              <button style="border:none;background:#24231f;color:#f7f5f0;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600">Save trip</button>
+            </div>
+          </header>
+          <div style="padding:24px 56px 64px;display:flex;flex-direction:column;gap:40px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:10px;max-width:700px">
+                <div style="font-size:14px;font-weight:600;color:#6b675e">Your trip</div>
+                <h1 style="margin:0;font-size:44px;line-height:1.05;font-weight:700;letter-spacing:-.035em;text-wrap:balance">{{ R.routeLabel }}</h1>
+                <div style="font-size:16px;color:#4a4740">{{ R.meta }}</div>
+              </div>
+              <div style="display:flex;gap:4px;background:#ebe6dc;border-radius:16px;padding:4px">
+                <sc-for list="{{ R.tiers }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.pick }}" style="border:none;border-radius:12px;padding:10px 18px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:{{ t.bg }};color:{{ t.fg }};transition:background .2s, color .2s">
+                    <span style="font-size:14px;font-weight:600">{{ t.label }}</span>
+                    <span style="font-size:13px;color:{{ t.sub }};font-variant-numeric:tabular-nums">{{ t.price }}</span>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fffdf8;border-radius:24px;padding:32px 36px;display:flex;flex-direction:column;gap:24px;box-shadow:0 1px 3px rgba(40,30,20,.06)">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-size:14px;font-weight:600;color:#6b675e">Estimated total · {{ R.tierLabel }}</span>
+                  <span style="font-size:60px;line-height:1;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums">{{ R.total }}</span>
+                  <span style="font-size:15px;color:#6b675e">{{ R.perPerson }}</span>
+                </div>
+                <span style="padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;background:{{ R.statusBg }};color:{{ R.statusFg }}">{{ R.statusText }}</span>
+              </div>
+              <div style="position:relative;height:44px">
+                <div style="position:absolute;left:0;right:0;top:14px;height:10px;border-radius:999px;background:#ebe6dc"></div>
+                <div style="position:absolute;top:14px;height:10px;border-radius:999px;background:#24231f;left:{{ R.rangeL }};width:{{ R.rangeW }};transition:left .5s cubic-bezier(.2,.8,.2,1), width .5s cubic-bezier(.2,.8,.2,1)"></div>
+                <div style="position:absolute;top:4px;left:{{ R.budgetX }};display:flex;flex-direction:column;align-items:center;transform:translateX(-50%);gap:4px">
+                  <span style="width:2px;height:30px;background:#bc7654"></span>
+                  <span style="font-size:12px;font-weight:600;color:#bc7654;white-space:nowrap">Budget {{ R.budget }}</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:start">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">Where the money goes</h2>
+                <div style="display:flex;height:12px;border-radius:999px;overflow:hidden;gap:2px">
+                  <sc-for list="{{ R.cats }}" as="c" hint-placeholder-count="5"><span style="width:{{ c.w }};background:{{ c.color }};transition:width .5s"></span></sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ R.cats }}" as="c" hint-placeholder-count="5">
+                    <div style="display:flex;flex-direction:column;gap:6px;padding:14px 0;border-top:1px solid #e4dfd4">
+                      <div style="display:flex;align-items:center;gap:10px">
+                        <span style="width:10px;height:10px;border-radius:3px;background:{{ c.color }}"></span>
+                        <span style="flex:1;font-size:16px;font-weight:600">{{ c.label }} <span style="font-weight:400;color:#6b675e">{{ c.share }}</span></span>
+                        <span style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ c.amount }}</span>
+                      </div>
+                      <sc-for list="{{ c.lines }}" as="l" hint-placeholder-count="0">
+                        <div style="display:flex;gap:10px;padding-left:20px;font-size:13px;color:#6b675e">
+                          <span style="flex:1">{{ l.label }} <span style="color:#9a958a">· {{ l.unit }}</span></span>
+                          <span style="font-variant-numeric:tabular-nums">{{ l.amount }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <sc-if value="{{ R.hasSavings }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fffdf8;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:14px">
+                  <h2 style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em">Ways to save</h2>
+                  <sc-for list="{{ R.savings }}" as="v" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid #ece6da">
+                      <span style="font-size:14px;color:#24231f;text-wrap:pretty">{{ v.label }}</span>
+                      <span style="font-size:14px;font-weight:600;color:#3e5a2c;white-space:nowrap;font-variant-numeric:tabular-nums">{{ v.saves }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">Getting around</h2>
+              <sc-for list="{{ R.legs }}" as="g" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;padding:18px 0;border-top:1px solid #e4dfd4;align-items:start">
+                  <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:600">{{ g.label }}</span><span style="font-size:13px;color:#6b675e">{{ g.chosen }}</span></div>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap">
+                    <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="2">
+                      <div style="display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-radius:14px;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};min-width:150px">
+                        <span style="font-size:15px;font-weight:600">{{ o.mode }} · {{ o.dur }}</span>
+                        <span style="font-size:13px;color:{{ o.sub }};font-variant-numeric:tabular-nums">{{ o.price }} p.p.</span>
+                        <span style="font-size:12px;font-weight:600;color:{{ o.sub }}">{{ o.tags }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <h2 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">Your stops</h2>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+                <sc-for list="{{ R.places }}" as="p" hint-placeholder-count="2">
+                  <div style="background:#fffdf8;border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+                    <div style="position:relative;height:160px;background:#e4dfd4">
+                      <div role="img" aria-label="{{ p.name }}" style="position:absolute;inset:0;background:{{ p.bgImg }};background-size:cover;background-position:center"></div>
+                      <span style="position:absolute;left:12px;top:12px;background:rgba(255,253,248,.94);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600">{{ p.nightsLabel }}</span>
+                    </div>
+                    <div style="padding:16px 18px 20px;display:flex;flex-direction:column;gap:10px">
+                      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:20px;font-weight:700;letter-spacing:-.02em">{{ p.name }}</span><span style="font-size:14px;color:#6b675e">{{ p.country }} · {{ p.stay }}</span></div>
+                      <div style="display:flex;flex-direction:column;gap:6px">
+                        <sc-for list="{{ p.atts }}" as="a" hint-placeholder-count="3">
+                          <div style="display:flex;justify-content:space-between;gap:10px;font-size:14px"><span>{{ a.name }}</span><span style="color:#6b675e;white-space:nowrap">{{ a.price }}</span></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div id="7b" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">7b</span><span style="font-size:14px;color:#4a4740">Day by day: the trip as a timeline, costs in a side panel</span></div>
+      <div data-screen-label="7b Day by day" style="width:1280px;min-height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <div style="position:absolute;inset:0;z-index:20;background:#f7f5f0;opacity:{{ L.op }};pointer-events:{{ L.pe }};visibility:{{ L.vis }};transition:{{ L.tr }};display:flex;flex-direction:column;align-items:center;padding-top:250px;gap:24px">
+          <div style="position:absolute;top:22px;left:40px;font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+          <div style="font-size:15px;color:#6b675e">{{ L.route }}</div>
+          <div style="font:700 44px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ L.title }}</div>
+          <div style="width:560px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px"><span style="font-size:15px;color:#4a4740;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ L.msg }}</span><span style="font:700 22px 'Bricolage Grotesque',sans-serif;font-variant-numeric:tabular-nums">{{ L.pct }}</span></div>
+            <div style="height:8px;border-radius:999px;background:#e4dfd4;overflow:hidden"><div style="height:100%;width:{{ L.w }};background:{{ L.barCol }};border-radius:999px;transition:width .4s ease"></div></div>
+            <div style="font-size:13px;color:#9a958a">{{ L.hint }}</div>
+          </div>
+        </div>
+        <sc-if value="{{ R.ready }}" hint-placeholder-val="{{ false }}">
+          <header style="display:flex;align-items:center;justify-content:space-between;padding:22px 40px">
+            <div style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+            <button style="border:1px solid #24231f;background:transparent;padding:9px 18px;border-radius:999px;font-size:14px">Edit route</button>
+          </header>
+          <div style="padding:16px 40px 64px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:40px;align-items:start">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:0 0 24px">
+                <h1 style="margin:0;font-size:40px;line-height:1.05;font-weight:700;letter-spacing:-.035em;text-wrap:balance">{{ R.routeLabel }}</h1>
+                <div style="font-size:16px;color:#4a4740">{{ R.meta }}</div>
+              </div>
+              <sc-for list="{{ R.flow }}" as="f" hint-placeholder-count="0">
+                <div style="display:flex;flex-direction:column">
+                  <sc-if value="{{ f.isLeg }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:40px minmax(0,1fr);gap:16px;align-items:stretch">
+                      <div style="display:flex;justify-content:center"><span style="border-left:2px dotted #b9b2a4"></span></div>
+                      <div style="display:flex;align-items:center;gap:12px;padding:18px 0;flex-wrap:wrap">
+                        <span style="font-size:14px;font-weight:600;color:#4a4740">{{ f.leg.label }}</span>
+                        <sc-for list="{{ f.leg.opts }}" as="o" hint-placeholder-count="2">
+                          <span style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};font-size:13px;font-weight:500;white-space:nowrap">{{ o.mode }} · {{ o.dur }} · <span style="color:{{ o.sub }}">{{ o.price }}</span></span>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ f.isPlace }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:40px minmax(0,1fr);gap:16px">
+                      <div style="display:flex;flex-direction:column;align-items:center"><span style="width:36px;height:36px;border-radius:50%;background:#24231f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ f.place.num }}</span><span style="flex:1;border-left:2px dotted #b9b2a4"></span></div>
+                      <div style="background:#fffdf8;border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+                        <div style="position:relative;height:200px;background:#e4dfd4">
+                          <div role="img" aria-label="{{ f.place.name }}" style="position:absolute;inset:0;background:{{ f.place.bgImg }};background-size:cover;background-position:center"></div>
+                          <div style="position:absolute;left:0;right:0;bottom:0;padding:40px 24px 18px;background:linear-gradient(transparent,rgba(20,18,15,.6));display:flex;align-items:flex-end;justify-content:space-between;color:#fff">
+                            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:30px;font-weight:700;letter-spacing:-.03em">{{ f.place.name }}</span><span style="font-size:14px;opacity:.9">{{ f.place.country }}</span></div>
+                            <span style="background:rgba(255,253,248,.94);color:#24231f;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600">{{ f.place.nightsLabel }}</span>
+                          </div>
+                        </div>
+                        <div style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:20px">
+                          <sc-if value="{{ f.place.hasKnown }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:15px;line-height:1.5;color:#4a4740;text-wrap:pretty">{{ f.place.knownFor }}</p></sc-if>
+                          <div style="display:flex;flex-direction:column">
+                            <sc-for list="{{ f.place.days }}" as="d" hint-placeholder-count="2">
+                              <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid #ece6da">
+                                <span style="font-size:13px;font-weight:700;color:#bc7654;padding-top:2px">{{ d.label }}</span>
+                                <div style="display:flex;flex-direction:column;gap:3px">
+                                  <span style="font-size:16px;font-weight:600">{{ d.title }}</span>
+                                  <span style="font-size:14px;color:#4a4740">{{ d.atts }}</span>
+                                  <span style="font-size:13px;color:#6b675e">{{ d.notes }}</span>
+                                </div>
+                              </div>
+                            </sc-for>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+                            <div style="background:#f4efe6;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:700;color:#6b675e">Stay</span><span style="font-size:14px;font-weight:600">{{ f.place.stay }}</span></div>
+                            <div style="background:#f4efe6;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:700;color:#6b675e">Food</span><span style="font-size:14px;font-weight:600">{{ f.place.meal }}</span></div>
+                            <div style="background:#f4efe6;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:700;color:#6b675e">Getting around</span><span style="font-size:14px;font-weight:600">{{ f.place.local }}</span></div>
+                          </div>
+                          <sc-if value="{{ f.place.hasFood }}" hint-placeholder-val="{{ false }}">
+                            <div style="display:flex;flex-direction:column;gap:6px">
+                              <span style="font-size:13px;font-weight:700;color:#6b675e">Try</span>
+                              <sc-for list="{{ f.place.food }}" as="k" hint-placeholder-count="1"><span style="font-size:14px"><strong style="font-weight:600">{{ k.name }}</strong> <span style="color:#6b675e">{{ k.desc }}</span></span></sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <aside style="position:sticky;top:24px;background:#fffdf8;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:18px;box-shadow:0 8px 30px rgba(40,30,20,.08)">
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:13px;font-weight:700;color:#6b675e">Estimated total</span>
+                <span style="font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums">{{ R.total }}</span>
+                <span style="font-size:14px;color:#6b675e">{{ R.perPerson }}</span>
+              </div>
+              <span style="align-self:flex-start;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;background:{{ R.statusBg }};color:{{ R.statusFg }}">{{ R.statusText }}</span>
+              <div style="display:flex;gap:2px;background:#ebe6dc;border-radius:999px;padding:3px">
+                <sc-for list="{{ R.tiers }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.pick }}" style="flex:1;border:none;border-radius:999px;padding:8px 0;font-size:13px;font-weight:600;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ R.cats }}" as="c" hint-placeholder-count="5">
+                  <div style="display:flex;flex-direction:column;gap:5px">
+                    <div style="display:flex;justify-content:space-between;font-size:14px"><span>{{ c.label }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ c.amount }}</span></div>
+                    <div style="height:6px;border-radius:999px;background:#ebe6dc;overflow:hidden"><div style="height:100%;width:{{ c.w }};background:{{ c.color }};border-radius:999px;transition:width .5s"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:13px;color:#6b675e">Budget {{ R.budget }}</div>
+              <button style="border:none;background:#24231f;color:#f7f5f0;border-radius:14px;height:50px;font-size:15px;font-weight:600" style-hover="background:#bc7654">Save trip</button>
+            </aside>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div id="7c" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">7c</span><span style="font-size:14px;color:#4a4740">Map &amp; route: the route on the map, stops and legs as one strip, costs below</span></div>
+      <div data-screen-label="7c Map and route" style="width:1280px;min-height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <div style="position:absolute;inset:0;z-index:20;background:#f7f5f0;opacity:{{ L.op }};pointer-events:{{ L.pe }};visibility:{{ L.vis }};transition:{{ L.tr }};display:flex;flex-direction:column;align-items:center;padding-top:250px;gap:24px">
+          <div style="position:absolute;top:22px;left:40px;font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+          <div style="font-size:15px;color:#6b675e">{{ L.route }}</div>
+          <div style="font:700 44px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ L.title }}</div>
+          <div style="width:560px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px"><span style="font-size:15px;color:#4a4740;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ L.msg }}</span><span style="font:700 22px 'Bricolage Grotesque',sans-serif;font-variant-numeric:tabular-nums">{{ L.pct }}</span></div>
+            <div style="height:8px;border-radius:999px;background:#e4dfd4;overflow:hidden"><div style="height:100%;width:{{ L.w }};background:{{ L.barCol }};border-radius:999px;transition:width .4s ease"></div></div>
+            <div style="font-size:13px;color:#9a958a">{{ L.hint }}</div>
+          </div>
+        </div>
+        <sc-if value="{{ R.ready }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;height:520px;overflow:hidden">
+            <div style="position:absolute;left:0;top:0;width:1650px;transform-origin:0 0;transform:{{ R.mapTf }};transition:transform .8s cubic-bezier(.2,.8,.2,1)">
+              <svg viewBox="0 0 1376 768" style="width:100%;display:block;overflow:visible">
+                <sc-for list="{{ R.countries }}" as="k" hint-placeholder-count="0">
+                  <path d="{{ k.d }}" fill="{{ k.fill }}" stroke="#f7f5f0" stroke-width=".6" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+                </sc-for>
+                <sc-for list="{{ R.arcs }}" as="r" hint-placeholder-count="0">
+                  <path d="{{ r.d }}" fill="none" stroke="#24231f" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+                </sc-for>
+              </svg>
+            </div>
+            <sc-for list="{{ R.pins }}" as="p" hint-placeholder-count="0">
+              <div style="position:absolute;left:{{ p.left }};top:{{ p.top }};z-index:3;display:flex;align-items:center;gap:6px;transform:translate(-13px,-13px)">
+                <span style="width:26px;height:26px;box-sizing:border-box;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:{{ p.bg }};color:{{ p.fg }};border:{{ p.bd }};box-shadow:0 2px 6px rgba(36,35,31,.25)">{{ p.num }}</span>
+                <span style="background:#fffdf8;padding:5px 11px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12)">{{ p.name }}</span>
+              </div>
+            </sc-for>
+            <header style="position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:22px 40px">
+              <div style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+              <button style="border:1px solid #24231f;background:#f7f5f0;padding:9px 18px;border-radius:999px;font-size:14px">Edit route</button>
+            </header>
+            <div style="position:absolute;left:40px;bottom:24px;background:#fffdf8;border-radius:18px;padding:16px 20px;display:flex;flex-direction:column;gap:4px;box-shadow:0 12px 30px rgba(40,30,20,.14);max-width:560px">
+              <span style="font-size:22px;font-weight:700;letter-spacing:-.02em;text-wrap:balance">{{ R.routeLabel }}</span>
+              <span style="font-size:14px;color:#4a4740">{{ R.meta }}</span>
+            </div>
+          </div>
+          <div style="padding:28px 40px 0;display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;align-items:stretch">
+            <sc-for list="{{ R.flow }}" as="f" hint-placeholder-count="0">
+              <div style="display:flex;flex-shrink:0">
+                <sc-if value="{{ f.isLeg }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 6px;min-width:120px">
+                    <span style="height:0;border-top:2px dotted #b9b2a4"></span>
+                    <span style="font-size:12px;font-weight:600;color:#4a4740;text-align:center;white-space:nowrap">{{ f.leg.chosen }}</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isPlace }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:250px;background:#fffdf8;border-radius:18px;overflow:hidden;display:flex;flex-direction:column">
+                    <div style="position:relative;height:110px;background:#e4dfd4">
+                      <div role="img" aria-label="{{ f.place.name }}" style="position:absolute;inset:0;background:{{ f.place.bgImg }};background-size:cover;background-position:center"></div>
+                      <span style="position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:50%;background:#24231f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ f.place.num }}</span>
+                    </div>
+                    <div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px">
+                      <span style="font-size:17px;font-weight:700">{{ f.place.name }}</span>
+                      <span style="font-size:13px;color:#6b675e">{{ f.place.nightsLabel }} · {{ f.place.stay }}</span>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:28px 40px 56px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start">
+            <div style="background:#24231f;color:#f7f5f0;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:14px">
+              <span style="font-size:13px;font-weight:700;color:#cfc9bd">Estimated total · {{ R.tierLabel }}</span>
+              <span style="font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums">{{ R.total }}</span>
+              <span style="font-size:14px;color:#cfc9bd">{{ R.perPerson }} · Budget {{ R.budget }}</span>
+              <span style="align-self:flex-start;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;background:{{ R.statusBg }};color:{{ R.statusFg }}">{{ R.statusText }}</span>
+              <div style="display:flex;gap:2px;background:#3a3832;border-radius:999px;padding:3px">
+                <sc-for list="{{ R.tiers }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.pick }}" style="flex:1;border:none;border-radius:999px;padding:8px 0;font-size:13px;font-weight:600;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fffdf8;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px">
+              <span style="font-size:18px;font-weight:700">Costs</span>
+              <sc-for list="{{ R.cats }}" as="c" hint-placeholder-count="5">
+                <div style="display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:12px;align-items:center;font-size:14px">
+                  <span>{{ c.label }}</span>
+                  <div style="height:8px;border-radius:999px;background:#ebe6dc;overflow:hidden"><div style="height:100%;width:{{ c.w }};background:{{ c.color }};border-radius:999px;transition:width .5s"></div></div>
+                  <span style="font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{ c.amount }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fffdf8;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px">
+              <span style="font-size:18px;font-weight:700">Transport options</span>
+              <sc-for list="{{ R.legs }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid #ece6da">
+                  <span style="font-size:14px;font-weight:600">{{ g.label }}</span>
+                  <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="2">
+                    <div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#4a4740"><span>{{ o.mode }} · {{ o.dur }} <span style="color:#bc7654;font-weight:600">{{ o.tags }}</span></span><span style="white-space:nowrap;font-variant-numeric:tabular-nums">{{ o.price }}</span></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;apiBase&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;http://localhost:8000&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Backend&quot;},&quot;tripId&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;demo&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Backend&quot;}}">
+const CAT = { transport: 'Transport', accommodation: 'Stays', food: 'Food', activities: 'Activities', local_transport: 'Getting around' };
+const CATCOL = { transport: '#24231f', accommodation: '#bc7654', food: '#c8af83', activities: '#8a8cb2', local_transport: '#979e75' };
+const MODE = { flight: 'Flight', train: 'Train', bus: 'Bus', ferry: 'Ferry', car: 'Car', other: 'Other' };
+const ICON = {
+  flight: 'M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z',
+  train: 'M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 20.5v.5h2l2-2h4l2 2h2v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 10H6V6h5v4zm2 0V6h5v4h-5zm3.5 7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z',
+  bus: 'M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm9 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM18 11H6V6h12v5z',
+  ferry: 'M20 21c-1.4 0-2.8-.5-4-1.3-2.4 1.7-5.6 1.7-8 0C6.8 20.5 5.4 21 4 21H2v2h2c1.4 0 2.7-.3 4-1 2.5 1.3 5.5 1.3 8 0 1.3.7 2.6 1 4 1h2v-2h-2zM3.9 19H4c1.6 0 3-.9 4-2 1 1.1 2.4 2 4 2s3-.9 4-2c1 1.1 2.4 2 4 2h.1l1.9-6.7c.1-.3 0-.6-.1-.8-.2-.2-.4-.4-.7-.4L20 10.6V6c0-1.1-.9-2-2-2h-3V1H9v3H6c-1.1 0-2 .9-2 2v4.6l-1.3.5c-.3.1-.5.2-.6.5-.1.2-.2.5-.1.8L3.9 19zM6 6h12v4l-6-2-6 2V6z',
+  car: 'M18.9 6c-.2-.6-.8-1-1.4-1h-11c-.7 0-1.2.4-1.4 1L3 12v8a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h12v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-8l-2.1-6zM6.5 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm11 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM5 11l1.5-4.5h11L19 11H5z',
+  other: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'
+};
+const TIERS = [['budget', 'Budget'], ['comfort', 'Comfort'], ['luxury', 'Luxury']];
+const MAPCOL = { namerica: '#a1a899', samerica: '#c8af83', europe: '#8a8cb2', africa: '#c49a8e', asia: '#979e75', oceania: '#bc7654' };
+const LIGHT = Object.fromEntries(Object.entries(MAPCOL).map(([k, h]) => { const a = [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)), b = [247, 245, 240]; return [k, 'rgb(' + a.map((v, j) => Math.round(v + (b[j] - v) * 0.55)).join(',') + ')']; }));
+const PLEN = [1, .9986, .9954, .99, .9761, .9394, .8936, .8435, .7881, .7313];
+const plen = lat => { const a = Math.min(89.9, Math.abs(lat)) / 10, i = Math.floor(a); return PLEN[i] + (PLEN[Math.min(9, i + 1)] - PLEN[i]) * (a - i); };
+const proj = (lat, lon) => [712.8 + 3.037 * lon * plen(lat), 385.3 - 3.534 * lat];
+const r10 = v => Math.round(v / 10) * 10;
+const fmtN = v => Math.round(v).toLocaleString('en-US');
+const mid = m => (m.min + m.max) / 2;
+const fmtH = h => h < 1 ? Math.round(h * 60) + ' min' : (Math.round(h * 10) / 10) + ' h';
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : '';
+
+class Component extends DCLogic {
+  state = { trip: null, err: '', tier: null, sim: 0, simOn: false, idIn: '', geo: {}, finishing: false };
+
+  componentDidMount() {
+    this._esc = e => { if (e.key === 'Escape' && this.state.openStop) this.setState({ openStop: null }); };
+    window.addEventListener('keydown', this._esc);
+    try { this.setState({ titles: JSON.parse(localStorage.getItem('holydays-trip-titles') || '{}') }); } catch (e) {}
+    const q = new URLSearchParams(location.search).get('trip');
+    this.load(q || this.props.tripId || 'demo');
+    const get = (u, n = 6) => fetch(u).then(r => r.ok ? r.json() : Promise.reject(r.status)).catch(e => n > 0 ? new Promise(r => setTimeout(r, 400)).then(() => get(u, n - 1)) : Promise.reject(e));
+    get('assets/countries.json').then(countries => this.setState({ countries })).catch(() => {});
+    get('assets/destinations.json').then(dest => this.setState({ dest })).catch(() => {});
+  }
+  setTitle(id, v) {
+    this.setState(s => { const titles = { ...(s.titles || {}) }; if (v == null) delete titles[id]; else titles[id] = v;
+      try { localStorage.setItem('holydays-trip-titles', JSON.stringify(titles)); } catch (e) {}
+      return { titles }; });
+  }
+  imgFor(d) {
+    if (!d || !d.wiki) return '';
+    if (!this._ic) { try { const raw = JSON.parse(localStorage.getItem('holydays-img-cache-v2') || '{}'); this._ic = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== '' || true)); } catch (e) { this._ic = {}; } this._iq = []; this._ib = 0; this._tries = {}; }
+    const c = this._ic[d.wiki];
+    if (c !== undefined) return c || '';
+    if (!this._iq.includes(d.wiki)) { this._iq.push(d.wiki); setTimeout(() => this.pumpImgs(), 0); }
+    return '';
+  }
+  pumpImgs() {
+    if (this._ib >= 2 || !this._iq.length || this._ipause) return;
+    const t = this._iq.shift(); this._ib++;
+    const done = () => { this._ib--; clearTimeout(this._ir); this._ir = setTimeout(() => this.forceUpdate(), 250); setTimeout(() => this.pumpImgs(), 250); };
+    const temp = () => { const n = this._tries[t] = (this._tries[t] || 0) + 1; if (n <= 3) { const w = [3000, 10000, 30000][n - 1]; this._ipause = true; setTimeout(() => { this._ipause = false; this._iq.push(t); this.pumpImgs(); }, w); } };
+    fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t.replace(/ /g, '_')))
+      .then(r => {
+        if (r.status === 404) { this._ic[t] = ''; this.saveImgs(); return; }
+        if (!r.ok) { temp(); return; }
+        return r.json().then(j => { const o = j.originalimage, th = j.thumbnail && j.thumbnail.source; this._ic[t] = o && o.width <= 1400 ? o.source : th ? th.replace(/\/\d+px-/, '/960px-') : ''; this.saveImgs(); });
+      })
+      .catch(() => temp())
+      .finally(done);
+  }
+  saveImgs() { try { localStorage.setItem('holydays-img-cache-v2', JSON.stringify(this._ic)); } catch (e) {} }
+  componentWillUnmount() { window.removeEventListener('keydown', this._esc); clearTimeout(this._poll); clearInterval(this._sim); }
+  base() { return (this.props.apiBase ?? 'http://localhost:8000').replace(/\/$/, ''); }
+
+  load(id) {
+    clearTimeout(this._poll);
+    this.setState({ id, err: '', trip: null, tier: null, t0: Date.now(), geo: {} });
+    this.poll(id);
+  }
+  poll(id) {
+    fetch(this.base() + '/api/trips/' + encodeURIComponent(id))
+      .then(r => r.ok ? r.json() : Promise.reject(r.status === 404 ? 'Trip "' + id + '" not found' : 'HTTP ' + r.status))
+      .then(t => {
+        if (this.state.id !== id) return;
+        const wasLive = this.state.trip && !/done|error/.test(this.state.trip.status);
+        if (!this._played && !this.state.trip && t.status === 'done') { this._played = true; this.replay(); }
+        this.setState({ trip: t, offline: false });
+        if (!/done|error/.test(t.status)) { this._poll = setTimeout(() => this.poll(id), 1200); return; }
+        if (wasLive && t.status === 'done') { this.setState({ finishing: true }); setTimeout(() => this.setState({ finishing: false }), 900); }
+        if (t.status === 'done') this.geocode(t);
+      })
+      .catch(e => {
+        const down = String(e).includes('fetch');
+        if (down && id === 'demo') return fetch('assets/demo-trip.json').then(r => r.json()).then(t => { if (this.state.id !== id) return; if (!this._played) { this._played = true; this.replay(); } this.setState({ trip: t, offline: true }); });
+        this.setState({ err: down ? 'Backend not reachable at ' + this.base() : String(e) });
+      });
+  }
+  geocode(t) {
+    const names = [...new Set([t.request.origin, ...t.request.stops.map(s => s.name)])];
+    names.forEach(n => fetch(this.base() + '/api/geo/search?q=' + encodeURIComponent(n)).then(r => r.json())
+      .then(a => { if (a && a[0]) this.setState(s => ({ geo: { ...s.geo, [n]: { lat: a[0].lat, lon: a[0].lon } } })); }).catch(() => {}));
+  }
+  replay() {
+    clearInterval(this._sim);
+    const t0 = Date.now();
+    this.setState({ simOn: true, sim: 0 });
+    this._sim = setInterval(() => {
+      const p = Math.min(100, (Date.now() - t0) / 60);
+      this.setState({ sim: p });
+      if (p >= 100) { clearInterval(this._sim); setTimeout(() => this.setState({ simOn: false }), 700); }
+    }, 50);
+  }
+
+  loadingVals() {
+    const s = this.state, t = s.trip;
+    const names = t ? [t.request.origin, ...t.request.stops.map(x => x.name), ...(t.request.return_to_origin ? [t.request.origin] : [])] : [];
+    const simMsgs = t ? ['Starting web research', ...t.request.stops.map(x => 'Researching ' + x.name + ': sights, food, prices'), ...names.slice(1).map((n, i) => 'Searching connections ' + names[i] + ' → ' + n), 'Building the day plan', 'Converting prices to ' + t.request.currency, 'Done'] : ['Starting web research'];
+    let show = false, pct = 0, msg = '', title = 'Planning your trip', failed = false;
+    if (s.simOn) { show = true; pct = s.sim; msg = simMsgs[Math.min(simMsgs.length - 1, Math.floor(pct / 100 * simMsgs.length))]; }
+    else if (s.err) { show = true; failed = true; title = 'Could not load the trip'; msg = s.err; }
+    else if (!t) { show = true; msg = 'Loading trip…'; }
+    else if (t.status === 'error') { show = true; failed = true; title = 'Planning failed'; msg = t.error || 'Unknown error'; pct = 100; }
+    else if (t.status !== 'done') {
+      show = true;
+      const exp = 4 + 3 * t.request.stops.length + 2 * (names.length - 1);
+      const el = (Date.now() - (s.t0 || Date.now())) / 1000;
+      pct = Math.min(95, Math.max(t.events.length / exp * 100, 90 * (1 - Math.exp(-el / 45))));
+      msg = t.events.length ? t.events[t.events.length - 1].message : 'Queued';
+    } else if (s.finishing) { show = true; pct = 100; msg = 'Done'; }
+    else { pct = 100; msg = 'Done'; }
+    return { show, op: show ? 1 : 0, pe: show ? 'auto' : 'none', vis: show ? 'visible' : 'hidden', tr: show ? 'opacity .6s ease' : 'opacity .6s ease, visibility 0s linear .6s', pct: Math.round(pct) + '%', w: pct.toFixed(1) + '%', msg, title,
+      barCol: failed ? '#a8432a' : '#24231f', route: names.join(' → '), hint: failed ? 'Check the backend and try again.' : 'This usually takes about a minute.' };
+  }
+
+  resultVals() {
+    const s = this.state, t = s.trip;
+    if (!t || t.status !== 'done' || !t.report || !t.research) return { ready: false, legs: [], places: [], flow: [], cats: [], tiers: [], savings: [], lines: [], tierCols: [], pins: [], arcs: [], countries: [] };
+    const rep0 = t.report, res = t.research, req = t.request, usd = t.usd_rate || 1, cur = rep0.currency;
+    const picks = s.legPick || {}, accT = s.placeAcc || {}, foodT = s.placeFood || {}, attOn = s.attOn || {};
+    const pax = req.travelers, rooms = Math.ceil(pax / 2), MEALS = 3;
+    const nightsOf = n => (res.nights.find(x => x.place === n) || {}).nights || 0;
+    const sched = new Set(res.days.flatMap(d => d.attraction_ids));
+    const dayOf = {}; res.days.forEach(d => d.attraction_ids.forEach(id => { if (!dayOf[id]) dayOf[id] = d.day; }));
+    const conv = (m, k) => ({ min: m.min * usd * k, max: m.max * usd * k });
+    const adj = T => {
+      let lines = T.lines.slice();
+      const lc = (T.leg_choices || []).map(c => {
+        const pk = picks[c.leg_index], L = res.legs[c.leg_index];
+        if (pk == null || pk === c.chosen || !L) return c;
+        const b = L.options[pk]; if (!b) return c;
+        const key = L.from_place + ' → ' + L.to_place;
+        lines = lines.map(l => l.category === 'transport' && (l.label || '').startsWith(key) ? { ...l, label: key + ' (' + b.mode + ')', total: conv(b.price, pax) } : l);
+        return { ...c, chosen: pk };
+      });
+      res.places.forEach(pl => {
+        const n = nightsOf(pl.name), pre = pl.name + ':';
+        if (n && accT[pl.name]) lines = lines.map(l => l.category === 'accommodation' && l.label.startsWith(pre) ? { ...l, label: pre + ' ' + n + ' nights (' + accT[pl.name] + ')', total: conv(pl.accommodation_per_night[accT[pl.name]], n * rooms) } : l);
+        if (n && foodT[pl.name]) lines = lines.map(l => l.category === 'food' && l.label.startsWith(pre) ? { ...l, label: pre + ' food (' + foodT[pl.name] + ')', total: conv(pl.meal_cost[foodT[pl.name]], n * MEALS * pax) } : l);
+        pl.attractions.forEach(at => {
+          if (attOn[at.id] == null) return;
+          const lbl = pre + ' ' + at.name, has = lines.some(l => l.category === 'activities' && l.label === lbl);
+          if (!attOn[at.id] && has) lines = lines.filter(l => !(l.category === 'activities' && l.label === lbl));
+          if (attOn[at.id] && !has && at.price && at.price.max > 0) lines.push({ category: 'activities', label: lbl, unit: '', total: conv(at.price, pax) });
+        });
+      });
+      const by = Object.fromEntries(Object.keys(T.by_category).map(k => [k, { min: 0, max: 0 }]));
+      lines.forEach(l => { const c = by[l.category] || { min: 0, max: 0 }; by[l.category] = { min: c.min + l.total.min, max: c.max + l.total.max }; });
+      const total = Object.values(by).reduce((x, m) => ({ min: x.min + m.min, max: x.max + m.max }), { min: 0, max: 0 });
+      return { ...T, lines, leg_choices: lc, by_category: by, total };
+    };
+    const rep = { ...rep0, tiers: Object.fromEntries(Object.entries(rep0.tiers).map(([k, T]) => [k, adj(T)])) };
+    const tier = s.tier || rep.selected_tier, B = rep.tiers[tier];
+    const money = m => cur + ' ' + fmtN(r10(m.min)) + ' – ' + fmtN(r10(m.max));
+    const usdR = (p, k = 1) => cur + ' ' + fmtN(Math.round(p.min * usd * k)) + (Math.round(p.max) !== Math.round(p.min) ? '–' + fmtN(Math.round(p.max * usd * k)) : '');
+    const names = [req.origin, ...req.stops.map(x => x.name), ...(req.return_to_origin ? [req.origin] : [])];
+    const nights = res.nights.reduce((a, n) => a + n.nights, 0);
+    const days = req.start_date && req.end_date ? Math.round((new Date(req.end_date) - new Date(req.start_date)) / 864e5) + 1 : req.days;
+    const fmtD = k => new Date(k + 'T12:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const diff = mid(B.total) - rep.budget;
+    const scale = Math.max(B.total.max, rep.budget) * 1.12;
+    const want = new Set(res.places.map(p => p.name)); const destBy = {}; (s.dest || []).forEach(d => { if (destBy[d.name]) return; const im = d.img || (want.has(d.name) ? this.imgFor(d) : ''); if (im) destBy[d.name] = { ...d, img: im }; });
+    const lineBy = c => B.lines.filter(l => l.category === c);
+    const legs = res.legs.map((l, i) => {
+      const ch = B.leg_choices.find(c => c.leg_index === i) || {};
+      const opts = l.options.map((o, j) => {
+        const on = j === ch.chosen;
+        return { mode: MODE[o.mode] || o.mode, dur: fmtH(o.duration_hours), price: usdR(o.price), desc: o.description,
+          tags: [j === ch.fastest && 'Fastest', j === ch.cheapest && 'Cheapest', j === ch.best_value && 'Best value'].filter(Boolean).join(' · '),
+          pick: () => this.setState(st => ({ legPick: { ...(st.legPick || {}), [i]: j } })), tagFg: on ? '#e0a17f' : '#bc7654',
+          lbg: on ? '#9c5536' : '#fffdf8', lfg: on ? '#fff' : '#24231f', lsub: on ? '#f6e3d8' : '#6b675e', lbd: on ? '#9c5536' : '#e2dccf',
+          tagList: [[j === ch.fastest, 'Fastest', '#e6e3ef', '#4b4d78'], [j === ch.cheapest, 'Cheapest', '#e3eadb', '#3e5a2c'], [j === ch.best_value, 'Best value', '#f3e6d6', '#8a5a1c']]
+            .filter(x => x[0]).map(([, label, b, f]) => ({ label, bg: b, fg: f })),
+          icon: ICON[o.mode] || ICON.other, ring: on ? 'inset 0 0 0 2px #24231f' : 'inset 0 0 0 1px #e2dccf',
+          dotBg: on ? '#24231f' : 'transparent', dotBd: on ? '#24231f' : '#cfc9bd', checkOp: on ? 1 : 0,
+          on, bg: on ? '#24231f' : '#fffdf8', fg: on ? '#f7f5f0' : '#24231f', sub: on ? '#cfc9bd' : '#6b675e', bd: on ? '#24231f' : '#e2dccf' };
+      });
+      const c = opts[ch.chosen] || opts[0] || { mode: '', dur: '', price: '' };
+      return { i, from: l.from_place, to: l.to_place, label: l.from_place + ' → ' + l.to_place, opts, chosen: c.mode + ' · ' + c.dur + ' · ' + c.price + ' p.p.', hasOpts: opts.length > 0 };
+    });
+    const places = res.places.map((p, i) => {
+      const n = (res.nights.find(x => x.place === p.name) || {}).nights || 0;
+      const d = destBy[p.name];
+      return {
+        i, num: String(i + 1), name: p.name, country: p.country, knownFor: (p.known_for || '').length > 3 ? p.known_for : '', hasKnown: (p.known_for || '').length > 3, summary: p.summary,
+        nightsLabel: n + (n === 1 ? ' night' : ' nights'), img: d ? d.img : '', bgImg: d ? 'url("' + d.img + '")' : '#e4dfd4', hasImg: !!d, noImg: !d,
+        stay: usdR(p.accommodation_per_night[tier]) + ' / night', meal: usdR(p.meal_cost[tier]) + ' / meal', local: usdR(p.local_transport_per_day[tier]) + ' / day',
+        atts: p.attractions.map(a => ({ name: a.name, kind: a.kind === 'sight' ? 'Sight' : 'Activity', desc: a.description, price: a.price && a.price.max > 0 ? usdR(a.price) : 'Free' })),
+        food: p.local_food.map(f => ({ name: cap(f.name), desc: (f.description || '').length > 3 ? f.description : '' })), hasFood: p.local_food.length > 0,
+        days: res.days.filter(x => x.place === p.name).map(x => ({ label: 'Day ' + x.day, title: x.title || p.name, notes: x.notes,
+          atts: x.attraction_ids.map(id => (p.attractions.find(a => a.id === id) || {}).name).filter(Boolean).join(' · ') }))
+      };
+    });
+    const flow = [];
+    legs.forEach((l, i) => { flow.push({ isLeg: true, isPlace: false, leg: l, place: null, topOp: i === 0 ? 0 : 1, botOp: i === places.length ? 0 : 1 }); if (places[i]) flow.push({ isLeg: false, isPlace: true, leg: null, place: places[i] }); });
+    // map
+    const CITY = { Zurich: [47.37, 8.54], Basel: [47.56, 7.59], Geneva: [46.2, 6.14], Bern: [46.95, 7.45], Shanghai: [31.23, 121.47], Beijing: [39.9, 116.4] };
+    const G = { ...s.geo };
+    names.forEach(n => { if (G[n]) return; const d = (s.dest || []).find(x => x.name === n && x.lat != null); if (d) G[n] = { lat: d.lat, lon: d.lon }; else if (CITY[n]) G[n] = { lat: CITY[n][0], lon: CITY[n][1] }; });
+    const pts = names.map(n => G[n] ? { n, ...G[n], xy: proj(G[n].lat, G[n].lon) } : null);
+    const ok = pts.filter(Boolean), S = 1650 / 1376, A = { x: 40, y: 40, w: 1200, h: 440 };
+    let tx = -185, ty = -60, sc = 1;
+    if (ok.length > 1) {
+      const xs = ok.map(p => p.xy[0] * S), ys = ok.map(p => p.xy[1] * S), pad = 120;
+      const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad;
+      sc = Math.max(0.6, Math.min(2.4, A.w / (x1 - x0), A.h / (y1 - y0)));
+      tx = A.x + (A.w - (x1 - x0) * sc) / 2 - x0 * sc; ty = A.y + (A.h - (y1 - y0) * sc) / 2 - y0 * sc;
+    }
+    const arc = (a, b) => { const [ax, ay] = a.xy, [bx, by] = b.xy, mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1; let nx = -dy / L, ny = dx / L; if (ny > 0) { nx = -nx; ny = -ny; } return `M${ax},${ay} Q${mx + nx * L * 0.2},${my + ny * L * 0.2} ${bx},${by}`; };
+    const arcs = []; for (let i = 1; i < pts.length; i++) if (pts[i - 1] && pts[i]) arcs.push({ d: arc(pts[i - 1], pts[i]) });
+    const seen = new Set();
+    const pins = pts.map((p, i) => { if (!p || seen.has(p.n)) return null; seen.add(p.n); return { name: p.n, num: i ? String(i) : '', left: (tx + p.xy[0] * S * sc) + 'px', top: (ty + p.xy[1] * S * sc) + 'px', bg: i ? '#24231f' : '#fffdf8', fg: i ? '#fff' : '#24231f', bd: i ? '2px solid #fffdf8' : '3px solid #24231f' }; }).filter(Boolean);
+    const inR = new Set(res.places.map(p => p.country));
+    const scaleT = Math.max(...TIERS.map(([k]) => rep.tiers[k].total.max), rep.budget) * 1.08;
+    const avg = (k, f) => res.places.length ? res.places.reduce((a, p) => a + mid(p[f][k]), 0) / res.places.length * usd : 0;
+    const tierCols = TIERS.map(([k, label]) => {
+      const T = rep.tiers[k], d = mid(T.total) - rep.budget, on = k === tier, ov = d > 0;
+      const modes = (T.leg_choices || []).map(c => { const o = ((res.legs[c.leg_index] || {}).options || [])[c.chosen]; return o ? MODE[o.mode] || o.mode : null; }).filter(Boolean);
+      return { label, on, pick: () => this.setState({ tier: k }), totalShort: cur + ' ' + fmtN(r10(mid(T.total))), range: money(T.total), perPerson: cur + ' ' + fmtN(r10(mid(T.total) / req.travelers)) + ' p.p.',
+        status: ov ? cur + ' ' + fmtN(r10(d)) + ' over' : cur + ' ' + fmtN(r10(-d)) + ' under',
+        statusFg: on ? (ov ? '#f0a98a' : '#b5d1a2') : (ov ? '#8f3b22' : '#3e5a2c'),
+        w: (mid(T.total) / scaleT * 100).toFixed(1) + '%', bx: (rep.budget / scaleT * 100).toFixed(1) + '%',
+        stay: cur + ' ' + fmtN(avg(k, 'accommodation_per_night')) + ' / night', meal: cur + ' ' + fmtN(avg(k, 'meal_cost')) + ' / meal', modes: [...new Set(modes)].join(' · ') || '–',
+        bg: on ? '#24231f' : '#fffdf8', fg: on ? '#f7f5f0' : '#24231f', sub: on ? '#cfc9bd' : '#6b675e', bd: on ? '#24231f' : '#e2dccf', track: on ? '#3a3832' : '#ebe6dc', fill: on ? '#f7f5f0' : '#24231f', line: on ? '#3a3832' : '#ece6da' };
+    });
+    const CONT = { namerica: 'North America', samerica: 'South America', europe: 'Europe', africa: 'Africa', asia: 'Asia', oceania: 'Oceania' };
+    const ctr = [...new Set(res.places.map(p => p.country).filter(Boolean))];
+    const conts = [...new Set(ctr.map(n => ((s.countries || []).find(k => k.n === n) || {}).c).filter(Boolean))];
+    const autoTitle = ctr.length === 0 ? 'Your trip' : ctr.length === 1 ? ctr[0] + ' trip' : ctr.length <= 3 ? ctr.slice(0, -1).join(', ') + ' & ' + ctr[ctr.length - 1] + ' trip'
+      : conts.length === 1 ? CONT[conts[0]] + ' trip' : 'Multi-country trip';
+    const custom = (s.titles || {})[t.id];
+    var titleVals = { title: custom != null ? custom : autoTitle, autoTitle, titleEdited: custom != null && custom !== autoTitle };
+    places.forEach((p, i) => {
+      p.attsLine = res.places[i].attractions.map(a => a.name).join(' · ');
+      const n = p.atts.length, open = s.openStop === p.name;
+      p.open = open; p.toggle = () => this.setState({ openStop: open ? null : p.name });
+      const pi = (s.priceIdx || {})[p.name] || 0;
+      p.priceDots = [0, 1, 2, 3].map(k => ({ h: k === pi ? '14px' : '5px', bg: k === pi ? '#24231f' : '#d6cfc2' }));
+      p.onPriceScroll = e => { const el = e.currentTarget, k = Math.round(el.scrollTop / (el.clientHeight || 1)); if (k !== pi) this.setState(st => ({ priceIdx: { ...(st.priceIdx || {}), [p.name]: k } })); };
+      p.attsLabel = n + (n === 1 ? ' thing to do' : ' things to do'); p.chev = 'rotate(-45deg)';
+      p.shadow = open ? '0 10px 30px rgba(40,30,20,.12)' : '0 1px 3px rgba(40,30,20,.06)';
+      p.atts.forEach(a => { const sight = a.kind === 'Sight'; a.kindBg = sight ? '#e6e3ef' : '#efe2d8'; a.kindFg = sight ? '#4b4d78' : '#8a4a2c'; a.kindShort = sight ? 'See' : 'Do'; });
+      const ls = B.lines.filter(l => (l.label || '').startsWith(p.name + ':'));
+      const sum = ls.reduce((a, l) => ({ min: a.min + l.total.min, max: a.max + l.total.max }), { min: 0, max: 0 });
+      p.stopShort = cur + ' ' + fmtN(r10(mid(sum))); p.stopRange = money(sum);
+      p.stopShare = Math.round(mid(sum) / mid(B.total) * 100) + '% of the trip';
+      p.stopW = (mid(sum) / mid(B.total) * 100).toFixed(1) + '%';
+      p.stayS = usdR(res.places[i].accommodation_per_night[tier]); const avgS = m => cur + ' ' + fmtN(Math.round(mid(m) * usd)); p.stayAvg = avgS(res.places[i].accommodation_per_night[tier]); p.mealAvg = avgS(res.places[i].meal_cost[tier]); p.localAvg = avgS(res.places[i].local_transport_per_day[tier]);
+      const rp = res.places[i], tabKey = s.stopTab || 'overview', fil = s.attFilter || 'all';
+      const at = accT[p.name] || tier, ft = foodT[p.name] || tier;
+      p.stayAvg = avgS(rp.accommodation_per_night[at]); p.mealAvg = avgS(rp.meal_cost[ft]);
+      p.summaryT = (rp.summary || '').length > 3 ? rp.summary : ''; p.hasSummary = !!p.summaryT;
+      p.attsAll = rp.attractions.map(a => {
+        const on = attOn[a.id] != null ? attOn[a.id] : sched.has(a.id), sight = a.kind === 'sight', free = !(a.price && a.price.max > 0);
+        return { id: a.id, name: a.name, desc: a.description, sight, kindShort: sight ? 'See' : 'Do', kindBg: sight ? '#e6e3ef' : '#efe2d8', kindFg: sight ? '#4b4d78' : '#8a4a2c',
+          price: free ? 'Free' : usdR(a.price) + ' p.p.', on, when: on ? (dayOf[a.id] && sched.has(a.id) ? 'Day ' + dayOf[a.id] : 'Added') : 'Not in plan',
+          whenBg: on ? '#e3eadb' : '#f0ebe1', whenFg: on ? '#3e5a2c' : '#6b675e', rowOp: on ? 1 : .7,
+          btn: on ? 'Remove' : 'Add', btnBg: on ? '#fffdf8' : '#24231f', btnFg: on ? '#24231f' : '#fff', btnBd: on ? '#cfc9bd' : '#24231f',
+          toggle: () => this.setState(st => ({ attOn: { ...(st.attOn || {}), [a.id]: !on } })) };
+      });
+      p.attsShown = p.attsAll.filter(a => fil === 'all' || (fil === 'sight') === a.sight);
+      const actSum = B.lines.filter(l => l.category === 'activities' && l.label.startsWith(p.name + ':')).reduce((x, l) => x + mid(l.total), 0);
+      p.attSummary = p.attsAll.filter(a => a.on).length + ' of ' + p.attsAll.length + ' in your plan · ' + cur + ' ' + fmtN(r10(actSum)) + ' for ' + pax + (pax === 1 ? ' traveller' : ' travellers');
+      p.filters = [['all', 'All'], ['sight', 'Sights'], ['activity', 'Activities']].map(([k, l]) => ({ label: l, bg: k === fil ? '#24231f' : 'transparent', fg: k === fil ? '#fff' : '#24231f', bd: k === fil ? '#24231f' : '#cfc9bd', pick: () => this.setState({ attFilter: k }) }));
+      const pickRow = (field, ct, key, unit) => TIERS.map(([k, l]) => ({ label: l, price: cur + ' ' + fmtN(Math.round(mid(rp[field][k]) * usd)) + unit, on: k === ct,
+        bg: k === ct ? '#24231f' : '#fffdf8', fg: k === ct ? '#fff' : '#24231f', sub: k === ct ? '#cfc9bd' : '#6b675e', bd: k === ct ? '#24231f' : '#e2dccf',
+        pick: () => this.setState(st => ({ [key]: { ...(st[key] || {}), [p.name]: k } })) }));
+      p.accPick = pickRow('accommodation_per_night', at, 'placeAcc', ' / night'); p.foodPick = pickRow('meal_cost', ft, 'placeFood', ' / meal');
+      p.dishes = rp.local_food.map(f => ({ name: cap(f.name), desc: (f.description || '').length > 3 ? f.description : '' }));
+      p.hasDishes = p.dishes.length > 0; p.noDishes = !p.hasDishes;
+      p.mealLine = 'A meal costs about ' + p.mealAvg + ' per person in ' + cap(ft) + '.';
+      p.dayList = res.days.filter(d => d.place === p.name).map(d => {
+        const items = d.attraction_ids.filter(id => attOn[id] !== false).map(id => (rp.attractions.find(a => a.id === id) || {}).name).filter(Boolean);
+        return { label: 'Day ' + d.day, title: d.title || p.name, notes: d.notes || '', hasNotes: !!d.notes, items: items.length ? items.join(' · ') : 'Free time' };
+      });
+      p.srcs = (rp.sources || []).slice(0, 6).map(u => { let host = u; try { host = new URL(u).hostname.replace(/^www\./, ''); } catch (e) {} return { url: u, host }; }); p.hasSrcs = p.srcs.length > 0;
+      p.tabs = [['overview', 'Overview', ''], ['todo', 'Things to do', String(p.attsAll.length)], ['food', 'Food', String(p.dishes.length)], ['plan', 'Day plan', String(p.dayList.length)]]
+        .map(([k, l, c]) => ({ label: l, count: c, hasCount: !!c, fg: k === tabKey ? '#24231f' : '#6b675e', bar: k === tabKey ? '#24231f' : 'transparent', pick: () => this.setState({ stopTab: k }) }));
+      p.tOverview = tabKey === 'overview'; p.tTodo = tabKey === 'todo'; p.tFood = tabKey === 'food'; p.tPlan = tabKey === 'plan'; p.mealS = usdR(res.places[i].meal_cost[tier]); p.localS = usdR(res.places[i].local_transport_per_day[tier]);
+    });
+    places.forEach((p, i) => { const L = places.length; p.prevName = places[(i - 1 + L) % L].name; p.nextName = places[(i + 1) % L].name; });
+    return {
+      ready: true, cur, tierLabel: cap(tier),
+      routeLabel: names.join(' → '), stopsLabel: req.stops.map(x => x.name).join(' · '),
+      meta: [req.start_date ? fmtD(req.start_date) + ' – ' + fmtD(req.end_date) : days + ' days', nights + ' nights', req.travelers + (req.travelers === 1 ? ' traveller' : ' travellers'), cap(req.trip_type)].join(' · '),
+      total: money(B.total), totalShort: cur + ' ' + fmtN(r10(mid(B.total))), perPerson: cur + ' ' + fmtN(r10(mid(B.total) / req.travelers)) + ' per person',
+      budget: cur + ' ' + fmtN(rep.budget), over: diff > 0,
+      statusText: diff > 0 ? 'Over budget by ' + cur + ' ' + fmtN(r10(diff)) : cur + ' ' + fmtN(r10(-diff)) + ' under budget',
+      statusBg: diff > 0 ? '#f6e1d8' : '#e3eadb', statusFg: diff > 0 ? '#8f3b22' : '#3e5a2c',
+      rangeL: (B.total.min / scale * 100).toFixed(1) + '%', rangeW: ((B.total.max - B.total.min) / scale * 100).toFixed(1) + '%', budgetX: (rep.budget / scale * 100).toFixed(1) + '%',
+      tiers: TIERS.map(([k, label]) => ({ label, price: cur + ' ' + fmtN(r10(mid(rep.tiers[k].total))), on: k === tier,
+        bg: k === tier ? '#24231f' : 'transparent', fg: k === tier ? '#f7f5f0' : '#24231f', sub: k === tier ? '#cfc9bd' : '#6b675e', dbg: k === tier ? '#f7f5f0' : 'transparent', dfg: k === tier ? '#24231f' : '#f7f5f0', dsub: k === tier ? '#6b675e' : '#cfc9bd', dbd: k === tier ? '#f7f5f0' : '#4a4740', pick: () => this.setState({ tier: k }) })),
+      cats: Object.entries(B.by_category).filter(([, m]) => m.max > 0).sort((a, b) => mid(b[1]) - mid(a[1])).map(([k, m]) => ({
+        key: k, label: CAT[k] || k, color: CATCOL[k] || '#9a958a', amount: money(m), w: (mid(m) / mid(B.total) * 100).toFixed(1) + '%', share: Math.round(mid(m) / mid(B.total) * 100) + '%',
+        lines: lineBy(k).map(l => ({ label: l.label, unit: l.unit, amount: money(l.total) })) })),
+      savings: tier === rep.selected_tier ? rep.savings.slice(0, 4).map(v => ({ label: v.label, saves: '− ' + money(v.saves) })) : [],
+      hasSavings: tier === rep.selected_tier && rep.savings.length > 0 && diff > 0,
+      legs, places, flow, tierCols, ...titleVals,
+      hasOpen: places.some(p => p.open), openPlace: places.find(p => p.open) || { atts: [] },
+      closeStop: () => this.setState({ openStop: null }),
+      prevStop: () => { const i = places.findIndex(p => p.open); this.setState({ openStop: places[(i - 1 + places.length) % places.length].name }); },
+      nextStop: () => { const i = places.findIndex(p => p.open); this.setState({ openStop: places[(i + 1) % places.length].name }); },
+      onTitle: e => this.setTitle(t.id, e.target.value),
+      onTitleBlur: e => { if (!e.target.value.trim()) this.setTitle(t.id, null); },
+      onTitleKey: e => { if (e.key === 'Enter') e.target.blur(); },
+      resetTitle: () => this.setTitle(t.id, null),
+      countries: (s.countries || []).map(k => ({ d: k.d, fill: inR.has(k.n) ? MAPCOL[k.c] : LIGHT[k.c] })),
+      mapTf: `translate(${tx}px,${ty}px) scale(${sc})`, arcs, pins
+    };
+  }
+
+  renderVals() {
+    const s = this.state, L = this.loadingVals(), R = this.resultVals();
+    return {
+      L, R,
+      editUrl: 'Holydays Trip Builder.dc.html?trip=' + encodeURIComponent(s.id || 'demo'),
+      tripId: s.id || 'demo', idIn: s.idIn, onIdIn: e => this.setState({ idIn: e.target.value }),
+      loadIn: () => this.load((s.idIn || '').trim() || 'demo'), replay: () => this.replay(),
+      statusText: s.err ? s.err : !s.trip ? 'Loading…' : 'Trip ' + s.trip.id + ' · ' + s.trip.status + (s.offline ? ' · offline copy (backend not reachable)' : ''),
+      statusFg: s.err ? '#a8432a' : '#6b675e'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "_help": "Preferred websites per research function. mode 'prefer' = search these sites first but still use the whole web; 'restrict' = only these sites. Empty domains = whole web. Changes apply to the next search.",
+  "sights":        {"mode": "prefer", "domains": ["wikivoyage.org", "lonelyplanet.com", "tripadvisor.com", "atlasobscura.com"]},
+  "activities":    {"mode": "prefer", "domains": ["getyourguide.com", "viator.com", "tripadvisor.com"]},
+  "food":          {"mode": "prefer", "domains": ["tasteatlas.com", "eater.com", "guide.michelin.com"]},
+  "accommodation": {"mode": "prefer", "domains": ["booking.com", "hostelworld.com", "hotels.com", "kayak.com"]},
+  "daily_costs":   {"mode": "prefer", "domains": ["numbeo.com", "budgetyourtrip.com"]},
+  "transport":     {"mode": "prefer", "domains": ["rome2rio.com", "seat61.com", "skyscanner.net", "thetrainline.com", "flixbus.com", "12go.asia"]}
+}

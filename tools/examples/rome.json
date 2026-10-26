@@ -1,0 +1,13 @@
+{
+  "origin": "Zurich",
+  "stops": [{"name": "Rome"}],
+  "return_to_origin": true,
+  "start_date": "2027-03-12",
+  "end_date": "2027-03-15",
+  "travelers": 2,
+  "budget": 1500,
+  "currency": "CHF",
+  "trip_type": "city",
+  "interests": ["Food", "Culture & history"],
+  "tier": "comfort"
+}

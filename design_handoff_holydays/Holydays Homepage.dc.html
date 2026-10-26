@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;family=DM+Mono:wght@400;500&amp;family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Bangers&amp;family=Comic+Neue:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#e8e5de;font-family:'DM Sans',sans-serif;color:#24231f;-webkit-font-smoothing:antialiased}
+a{color:#24231f;text-decoration:none}
+a:hover{color:#b8643f}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+@keyframes countryPop{from{transform:scale(1) translateY(0)}to{transform:scale(var(--s)) translateY(-3px)}}
+</style>
+</helmet>
+<section style="padding:64px 64px 0;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="font:500 13px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6b675e">Turn 4 · Country hover</div>
+    <div style="font-size:15px;color:#4a4740;max-width:760px;text-wrap:pretty">Every country is its own shape: hovering lifts it with a shadow and shows its name. Clicking a country opens the search with that country.</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <div id="4a" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">4a</span><span style="font-size:14px;color:#4a4740">Hover a country to lift it and see its name</span></div>
+      <div data-screen-label="4a Country hover" onClick="{{ v4a.bgClick }}" style="width:1280px;height:800px;position:relative;overflow:hidden;background:#f7f5f0;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <header style="position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:22px 40px">
+          <div style="font:800 28px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">Holydays</div>
+          <button style="border:1px solid #24231f;background:transparent;padding:9px 18px;border-radius:999px;font-size:14px">Sign in</button>
+        </header>
+        <div style="position:absolute;left:-185px;top:2px;width:1650px;opacity:{{ v4a.mapOp }};filter:{{ v4a.mapBlur }};transform:{{ v4a.mapTf }};transition:opacity .5s, filter .5s, transform .8s cubic-bezier(.2,.8,.2,1)">
+          <svg viewBox="0 0 1376 768" onMouseLeave="{{ v4a.leave }}" onMouseMove="{{ v4a.move }}" style="width:100%;display:block;overflow:visible">
+            <rect x="-200" y="-200" width="1776" height="1168" fill="transparent" onMouseEnter="{{ v4a.unhover }}"></rect>
+            <sc-for list="{{ v4a.countries }}" as="k" hint-placeholder-count="0">
+              <path d="{{ k.d }}" fill="{{ k.fill }}" stroke="#f7f5f0" stroke-width=".6" stroke-linejoin="round" onMouseEnter="{{ k.enter }}" onClick="{{ k.pick }}" style="cursor:pointer"></path>
+            </sc-for>
+            {{ v4a.hovEl }}
+          </svg>
+          <sc-for list="{{ v4a.pills }}" as="p" hint-placeholder-count="0">
+            <button onClick="{{ p.pick }}" style="position:absolute;left:{{ p.x }};top:{{ p.y }};transform:translate(-50%,-50%);border:none;cursor:pointer;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#fffdf8;color:#24231f;transition:transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s" style-hover="transform:translate(-50%,-50%) scale(1.08);box-shadow:0 6px 16px rgba(0,0,0,.16)">{{ p.name }}</button>
+          </sc-for>
+          <sc-if value="{{ v4a.hasHov }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:{{ v4a.hov.x }};top:{{ v4a.hov.y }};transform:translate(-50%,calc(-100% - 16px));pointer-events:none;display:flex;align-items:center;gap:8px;background:#24231f;color:#f7f5f0;padding:8px 14px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap;box-shadow:0 8px 20px rgba(36,35,31,.22)"><span style="width:8px;height:8px;border-radius:50%;background:{{ v4a.hov.fill }}"></span>{{ v4a.hov.n }}</div>
+          </sc-if>
+        </div>
+        <div style="position:absolute;left:40px;right:40px;top:190px;bottom:0;z-index:2;overflow:auto;display:flex;flex-direction:column;gap:24px;padding-bottom:40px;opacity:{{ v4a.panelOp }};transform:translateY({{ v4a.panelY }});pointer-events:{{ v4a.pe }};transition:opacity .4s .15s, transform .7s .15s cubic-bezier(.2,.8,.2,1)">
+          <div data-keep="1" style="display:flex;align-items:center;justify-content:space-between;gap:16px 32px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px">
+              <sc-for list="{{ v4a.moods }}" as="m" hint-placeholder-count="4">
+                <button onClick="{{ m.pick }}" style="border:none;border-radius:999px;padding:8px 16px;font-size:14px;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <sc-for list="{{ v4a.months }}" as="m" hint-placeholder-count="4">
+                <button onClick="{{ m.pick }}" style="border:none;cursor:pointer;border-radius:999px;padding:8px 16px;font-size:14px;background:{{ m.bg2 }};color:{{ m.fg }}">{{ m.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid #d8d3c8;padding-top:20px">
+            <div style="font:700 36px 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ v4a.countLabel }}</div>
+            <div style="font:500 14px 'Bricolage Grotesque',sans-serif;color:#6b675e">{{ v4a.whenLabel }} · {{ v4a.guestLabel }}</div>
+          </div>
+          <sc-if value="{{ v4a.none }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:16px;color:#6b675e">No places match. Try a country or continent.</div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+            <sc-for list="{{ v4a.res }}" as="d" hint-placeholder-count="0">
+              <div data-keep="1" style="display:flex;flex-direction:column;gap:10px;cursor:pointer;opacity:{{ d.op }};transform:translateY({{ d.y }});transition:opacity .5s {{ d.delay }}, transform .6s {{ d.delay }} cubic-bezier(.2,.8,.2,1)">
+                <div style="position:relative;height:170px;border-radius:6px;overflow:hidden;background:#e4dfd4">
+                  <img src="{{ d.img }}" alt="{{ d.name }}" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.2,.8,.2,1)">
+                  <span style="position:absolute;left:10px;top:10px;display:flex;align-items:center;gap:6px;background:rgba(255,253,248,.92);padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;color:#24231f"><span style="width:8px;height:8px;border-radius:50%;background:{{ d.color }}"></span>{{ d.mood }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <div style="font-size:18px;font-weight:500">{{ d.name }}<span style="color:#6b675e;font-weight:400">, {{ d.country }}</span></div>
+                  <div style="font:500 14px 'Bricolage Grotesque',sans-serif;color:#6b675e">{{ d.season }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div data-keep="1" style="position:absolute;left:50%;z-index:4;top:{{ v4a.barTop }};width:{{ v4a.barW }};transform:translateX(-50%);transition:top .75s cubic-bezier(.2,.8,.2,1), width .75s cubic-bezier(.2,.8,.2,1);display:flex;align-items:stretch;gap:4px;background:#fffdf8;border-radius:{{ v4a.barR }};padding:8px;box-sizing:border-box;box-shadow:0 12px 40px rgba(40,30,20,.16)">
+          <label style="flex:1.4;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:{{ v4a.inPad }};cursor:text">
+            <sc-if value="{{ v4a.open }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:12px;font-weight:700;color:#6b675e">Where to?</span>
+            </sc-if>
+            <input value="{{ v4a.q }}" onChange="{{ v4a.onQ }}" onFocus="{{ v4a.openIt }}" onClick="{{ v4a.openIt }}" placeholder="{{ v4a.ph }}" style="border:none;outline:none;background:transparent;font-size:18px;font-weight:{{ v4a.inW }};color:#24231f;padding:0;min-width:0">
+          </label>
+          <sc-if value="{{ v4a.open }}" hint-placeholder-val="{{ false }}">
+            <div data-keep="1" style="position:relative;display:flex;flex-direction:column;justify-content:center;padding:6px 8px;border-left:1px solid #ece6da">
+              <button onClick="{{ v4a.calToggle }}" style="border:none;background:{{ v4a.calBtnBg }};border-radius:14px;padding:6px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;font-family:inherit;transition:background .2s" style-hover="background:#f1ece2">
+                <span style="font-size:12px;font-weight:700;color:#6b675e">When?</span>
+                <span style="font-size:17px;font-weight:500;color:{{ v4a.dateFg }};white-space:nowrap">{{ v4a.dateText }}</span>
+              </button>
+              <sc-if value="{{ v4a.calOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;top:calc(100% + 18px);left:50%;transform:translateX(-50%);z-index:10;width:640px;background:#fffdf8;border-radius:24px;padding:24px 28px;box-shadow:0 24px 60px rgba(40,30,20,.22);display:flex;flex-direction:column;gap:20px">
+                  <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:36px">
+                    <button onClick="{{ v4a.calPrev }}" aria-label="Previous month" style="position:absolute;left:-6px;top:-4px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:18px;color:#24231f;opacity:{{ v4a.prevOp }}" style-hover="background:#f1ece2">‹</button>
+                    <button onClick="{{ v4a.calNext }}" aria-label="Next month" style="position:absolute;right:-6px;top:-4px;width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;font-size:18px;color:#24231f" style-hover="background:#f1ece2">›</button>
+                    <sc-for list="{{ v4a.cal }}" as="mo" hint-placeholder-count="2">
+                      <div style="display:flex;flex-direction:column;gap:12px">
+                        <div style="text-align:center;font-size:16px;font-weight:700;line-height:24px">{{ mo.title }}</div>
+                        <div style="display:grid;grid-template-columns:repeat(7,1fr);row-gap:2px">
+                          <sc-for list="{{ v4a.wd }}" as="w" hint-placeholder-count="7">
+                            <div style="text-align:center;font-size:12px;font-weight:600;color:#6b675e;padding-bottom:6px">{{ w }}</div>
+                          </sc-for>
+                          <sc-for list="{{ mo.days }}" as="d" hint-placeholder-count="35">
+                            <div style="display:flex;justify-content:center;background:{{ d.band }};border-radius:{{ d.br }}">
+                              <button onClick="{{ d.pick }}" disabled="{{ d.off }}" style="width:38px;height:38px;border-radius:50%;border:none;background:{{ d.bg }};color:{{ d.fg }};font:{{ d.fw }} 14px 'Bricolage Grotesque',sans-serif;cursor:{{ d.cur }};opacity:{{ d.op }}" style-hover="box-shadow:inset 0 0 0 1.5px #24231f">{{ d.label }}</button>
+                            </div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ece6da;padding-top:16px">
+                    <span style="font-size:14px;color:#6b675e">{{ v4a.calHint }}</span>
+                    <div style="display:flex;align-items:center;gap:16px">
+                      <button onClick="{{ v4a.calClear }}" style="border:none;background:transparent;cursor:pointer;font-size:14px;font-weight:500;color:#24231f;text-decoration:underline;text-underline-offset:3px">Clear</button>
+                      <button onClick="{{ v4a.calDone }}" style="border:none;background:#24231f;color:#f7f4ed;border-radius:999px;padding:10px 22px;cursor:pointer;font-size:14px;font-weight:600" style-hover="background:#bc7654">Done</button>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding:10px 18px;border-left:1px solid #ece6da">
+              <span style="font-size:12px;font-weight:700;color:#6b675e">Travellers</span>
+              <div style="display:flex;align-items:center;gap:12px">
+                <button onClick="{{ v4a.minus }}" style="width:28px;height:28px;border-radius:50%;border:1px solid #d8d3c8;background:#fffdf8;font-size:15px;line-height:1">−</button>
+                <span style="font-size:17px;font-weight:500;min-width:14px;text-align:center">{{ v4a.guests }}</span>
+                <button onClick="{{ v4a.plus }}" style="width:28px;height:28px;border-radius:50%;border:1px solid #d8d3c8;background:#fffdf8;font-size:15px;line-height:1">+</button>
+              </div>
+            </div>
+          </sc-if>
+          <button onClick="{{ v4a.openIt }}" style="border:none;background:#24231f;color:#f7f5f0;border-radius:{{ v4a.btnR }};height:{{ v4a.btnH }};align-self:center;padding:0 {{ v4a.btnPad }};font-size:15px;font-weight:{{ v4a.btnW }};transition:background .2s" style-hover="background:#bc7654">{{ v4a.btnText }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section style="padding:64px;display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div style="font:500 13px 'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#6b675e">Turn 1 · Homepage directions</div>
+    <div style="font-size:15px;color:#4a4740;max-width:720px;text-wrap:pretty">Planner-first homepage (<a href="#1b" style="text-decoration:underline">1b</a>).</div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+    <!-- 1b -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font:500 13px 'DM Mono',monospace;background:#24231f;color:#f7f5f0;padding:4px 10px;border-radius:4px">1b</span><span style="font-size:14px;color:#4a4740">Planner first: tell us the basics, get ideas by mood</span></div>
+      <div data-screen-label="1b Planner first" style="width:1280px;background:#f4efe6;border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);font-family:'Bricolage Grotesque',sans-serif">
+        <header style="display:flex;align-items:center;justify-content:space-between;padding:24px 56px">
+          <div style="font-size:26px;font-weight:800;letter-spacing:-.03em">holydays<span style="color:#c2714e">.</span></div>
+          <nav style="display:flex;gap:28px;font-size:16px;font-weight:500"><a href="#">Explore</a><a href="#">Deals</a><a href="#">My trips</a><a href="#">Sign in</a></nav>
+        </header>
+        <div style="padding:56px 56px 48px;display:flex;flex-direction:column;gap:36px">
+          <h1 style="margin:0;font-size:104px;line-height:.92;font-weight:800;letter-spacing:-.045em;max-width:1000px">Plan the trip.<br><span style="color:#c2714e">Skip the stress.</span></h1>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr auto;background:#fff;border-radius:20px;padding:8px;gap:4px;box-shadow:0 8px 30px rgba(60,40,20,.08)">
+            <label style="display:flex;flex-direction:column;gap:4px;padding:14px 20px;border-radius:14px">
+              <span style="font-size:13px;font-weight:700;color:#6b675e">Where to?</span>
+              <input value="{{ bWhere }}" onChange="{{ bSetWhere }}" placeholder="Anywhere" style="border:none;outline:none;font:500 19px 'Bricolage Grotesque',sans-serif;background:transparent;padding:0;color:#24231f">
+            </label>
+            <div style="display:flex;flex-direction:column;gap:4px;padding:14px 20px;border-left:1px solid #eee7da">
+              <span style="font-size:13px;font-weight:700;color:#6b675e">When?</span>
+              <div style="display:flex;gap:6px">
+                <sc-for list="{{ bMonths }}" as="m" hint-placeholder-count="3">
+                  <button onClick="{{ m.pick }}" style="border:none;border-radius:999px;padding:6px 12px;font:500 14px 'Bricolage Grotesque',sans-serif;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;padding:14px 20px;border-left:1px solid #eee7da">
+              <span style="font-size:13px;font-weight:700;color:#6b675e">Travellers</span>
+              <div style="display:flex;align-items:center;gap:14px">
+                <button onClick="{{ bMinus }}" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:#fff;font-size:17px;line-height:1">−</button>
+                <span style="font-size:19px;font-weight:500;min-width:16px;text-align:center">{{ bGuests }}</span>
+                <button onClick="{{ bPlus }}" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d3c8;background:#fff;font-size:17px;line-height:1">+</button>
+              </div>
+            </div>
+            <button onClick="{{ bGo }}" style="border:none;background:#24231f;color:#f7f5f0;border-radius:14px;padding:0 36px;font:700 18px 'Bricolage Grotesque',sans-serif" style-hover="background:#c2714e">Find trips</button>
+          </div>
+          <sc-if value="{{ bDone }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:16px;color:#4a4740">Showing ideas for <strong>{{ bSummary }}</strong></div>
+          </sc-if>
+        </div>
+        <div style="padding:0 56px 64px;display:flex;flex-direction:column;gap:24px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <h2 style="margin:0;font-size:36px;font-weight:700;letter-spacing:-.03em">What are you in the mood for?</h2>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ bMoods }}" as="m" hint-placeholder-count="4">
+                <button onClick="{{ m.pick }}" style="border:1.5px solid #24231f;border-radius:999px;padding:10px 20px;font:500 16px 'Bricolage Grotesque',sans-serif;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+            <sc-for list="{{ bDest }}" as="d" hint-placeholder-count="6">
+              <div style="background:#fff;border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+                <div style="aspect-ratio:16/10;background:repeating-linear-gradient(135deg,#ece8df 0 10px,#e4dfd4 10px 20px);display:flex;align-items:flex-start;justify-content:space-between;padding:14px;font:400 12px 'DM Mono',monospace;color:#7a756b">
+                  <span>photo: {{ d.name }}</span>
+                  <span style="background:{{ d.color }};color:#fff;padding:4px 10px;border-radius:999px;font:700 12px 'Bricolage Grotesque',sans-serif">{{ d.contName }}</span>
+                </div>
+                <div style="padding:16px 20px 20px;display:flex;justify-content:space-between;align-items:center">
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <div style="font-size:22px;font-weight:700;letter-spacing:-.02em">{{ d.name }}</div>
+                    <div style="font-size:15px;color:#6b675e">{{ d.country }} · {{ d.mood }}</div>
+                  </div>
+                  <div style="font-size:14px;color:#6b675e">Best: {{ d.season }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CONT = [
+  { id: 'europe', name: 'Europe', color: '#7f82ab' },
+  { id: 'asia', name: 'Asia', color: '#8a9567' },
+  { id: 'africa', name: 'Africa', color: '#b8975f' },
+  { id: 'namerica', name: 'North America', color: '#8b9787' },
+  { id: 'samerica', name: 'South America', color: '#a98a55' },
+  { id: 'oceania', name: 'Oceania', color: '#c2714e' }
+];
+const DEST = [
+  { id: 'lis', c: 'europe', name: 'Lisbon', country: 'Portugal', mood: 'City', season: 'May–Jun' },
+  { id: 'dol', c: 'europe', name: 'Dolomites', country: 'Italy', mood: 'Nature', season: 'Jul–Sep' },
+  { id: 'spl', c: 'europe', name: 'Split', country: 'Croatia', mood: 'Beach', season: 'Jun–Sep' },
+  { id: 'kyo', c: 'asia', name: 'Kyoto', country: 'Japan', mood: 'City', season: 'Mar–Apr' },
+  { id: 'bal', c: 'asia', name: 'Bali', country: 'Indonesia', mood: 'Beach', season: 'Apr–Oct' },
+  { id: 'hoi', c: 'asia', name: 'Hoi An', country: 'Vietnam', mood: 'City', season: 'Feb–Apr' },
+  { id: 'mar', c: 'africa', name: 'Marrakech', country: 'Morocco', mood: 'City', season: 'Mar–May' },
+  { id: 'cpt', c: 'africa', name: 'Cape Town', country: 'South Africa', mood: 'Nature', season: 'Nov–Mar' },
+  { id: 'zan', c: 'africa', name: 'Zanzibar', country: 'Tanzania', mood: 'Beach', season: 'Jun–Oct' },
+  { id: 'mex', c: 'namerica', name: 'Mexico City', country: 'Mexico', mood: 'City', season: 'Mar–May' },
+  { id: 'ban', c: 'namerica', name: 'Banff', country: 'Canada', mood: 'Nature', season: 'Jun–Sep' },
+  { id: 'tul', c: 'namerica', name: 'Tulum', country: 'Mexico', mood: 'Beach', season: 'Dec–Apr' },
+  { id: 'cus', c: 'samerica', name: 'Cusco', country: 'Peru', mood: 'Nature', season: 'May–Sep' },
+  { id: 'bue', c: 'samerica', name: 'Buenos Aires', country: 'Argentina', mood: 'City', season: 'Oct–Dec' },
+  { id: 'flo', c: 'samerica', name: 'Florianópolis', country: 'Brazil', mood: 'Beach', season: 'Dec–Mar' },
+  { id: 'que', c: 'oceania', name: 'Queenstown', country: 'New Zealand', mood: 'Nature', season: 'Dec–Feb' },
+  { id: 'syd', c: 'oceania', name: 'Sydney', country: 'Australia', mood: 'City', season: 'Sep–Nov' },
+  { id: 'fij', c: 'oceania', name: 'Fiji', country: 'Fiji', mood: 'Beach', season: 'May–Oct' }
+];
+const contOf = id => CONT.find(c => c.id === id);
+const POS = { namerica: [27, 30], samerica: [35, 62], europe: [52, 22], africa: [54, 52], asia: [70, 28], oceania: [83, 64] };
+const MAPCOL = { namerica: '#a1a899', samerica: '#c8af83', europe: '#8a8cb2', africa: '#c49a8e', asia: '#979e75', oceania: '#bc7654' };
+const SEARCH0 = { open: false, q: '', mood: 'All', month: 'Summer', guests: 2 };
+
+class Component extends DCLogic {
+  state = { a: 'europe', bWhere: '', bMonth: 'Summer', bGuests: 2, bMood: 'All', bDone: false, c: 'asia', trip: ['kyo'] };
+
+  componentDidMount() {
+    const load = (u, n = 8) => fetch(u).then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .catch(e => n > 0 ? new Promise(res => setTimeout(res, 400)).then(() => load(u, n - 1)) : Promise.reject(e));
+    load('assets/countries.json').then(countries => this.setState({ countries })).catch(e => console.warn('countries', e));
+    load('assets/destinations.json').then(dest => this.setState({ dest })).catch(e => console.warn('destinations', e));
+    this._esc = e => { if (e.key === 'Escape' && document.activeElement) document.activeElement.blur();
+      if (e.key === 'Escape') ['s4a'].forEach(k => this.setState(s => ({ [k]: { ...s[k], open: false, q: '', mood: 'All' } }))); };
+    window.addEventListener('keydown', this._esc);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._esc); }
+
+  calVals(st, set) {
+    const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const pad = n => String(n).padStart(2, '0');
+    const iso = (y, m, d) => y + '-' + pad(m + 1) + '-' + pad(d);
+    const now = new Date(), cur = now.getFullYear() * 12 + now.getMonth();
+    const today = iso(now.getFullYear(), now.getMonth(), now.getDate());
+    const base = Math.max(cur, st.calM ?? cur);
+    const from = st.from || '', to = st.to || '';
+    const fmt = k => new Date(k + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const pick = k => {
+      if (!from || to || k < from) set({ from: k, to: '' });
+      else if (k === from) set({ from: '', to: '' });
+      else set({ to: k });
+    };
+    const cal = [0, 1].map(o => {
+      const ym = base + o, y = Math.floor(ym / 12), m = ym % 12;
+      const lead = (new Date(y, m, 1).getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
+      const days = [];
+      for (let i = 0; i < lead; i++) days.push({ label: '', band: 'transparent', br: '0', bg: 'transparent', fg: 'transparent', fw: 400, cur: 'default', op: 0, off: true, pick: () => {} });
+      for (let d = 1; d <= n; d++) {
+        const k = iso(y, m, d), past = k < today, end = k === from || k === to, inR = from && to && k > from && k < to;
+        days.push({ label: d, off: past, op: past ? 0.35 : 1, cur: past ? 'default' : 'pointer',
+          bg: end ? '#24231f' : 'transparent', fg: end ? '#fff' : '#24231f', fw: k === today ? 700 : 500,
+          band: inR || (from && to && end) ? '#efe7d8' : 'transparent',
+          br: from && to && k === from ? '50% 0 0 50%' : from && to && k === to ? '0 50% 50% 0' : '0',
+          pick: () => pick(k) });
+      }
+      return { title: MN[m] + ' ' + y, days };
+    });
+    const nights = from && to ? Math.round((new Date(to) - new Date(from)) / 864e5) : 0;
+    return {
+      cal, wd: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+      calOpen: !!st.cal, calBtnBg: st.cal ? '#f1ece2' : 'transparent', prevOp: base > cur ? 1 : 0.3,
+      calToggle: () => set({ cal: !st.cal }),
+      calPrev: () => set({ calM: Math.max(cur, base - 1) }),
+      calNext: () => set({ calM: base + 1 }),
+      calClear: () => set({ from: '', to: '' }),
+      calDone: () => set({ cal: false }),
+      dateText: from ? fmt(from) + ' – ' + (to ? fmt(to) : 'Add return') : 'Add dates',
+      dateFg: from ? '#24231f' : '#9a958a',
+      calHint: nights ? nights + (nights === 1 ? ' night' : ' nights') + ' · ' + fmt(from) + ' – ' + fmt(to) : from ? 'Select your return date' : 'Select your departure date',
+      whenLabel: from ? [from, to].filter(Boolean).map(fmt).join(' – ') : st.month
+    };
+  }
+
+  mk(key) {
+    const st = this.state[key] || SEARCH0;
+    const set = p => this.setState(s => ({ [key]: { ...(s[key] || SEARCH0), ...p } }));
+    const q = st.q.trim().toLowerCase();
+    let res = (this.state.dest || DEST).filter(d => st.mood === 'All' || d.mood === st.mood);
+    if (q) res = res.filter(d => [d.name, d.country, (contOf(d.c) || {}).name].some(t => (t || '').toLowerCase().includes(q)));
+    const hit = new Set(res.map(d => d.c));
+    const filtering = !!q || st.mood !== 'All';
+    const o = st.open;
+    return {
+      open: o, q: st.q, month: st.month, guests: st.guests,
+      ...this.calVals(st, set),
+      guestLabel: st.guests + (st.guests === 1 ? ' traveller' : ' travellers'),
+      countLabel: res.length === 1 ? '1 place' : res.length + ' places',
+      none: res.length === 0,
+      onQ: e => set({ q: e.target.value, open: true }),
+      openIt: () => set({ open: true }),
+      close: () => set({ open: false, q: '', mood: 'All' }),
+      toggle: () => set({ open: !o }),
+      minus: () => set({ guests: Math.max(1, st.guests - 1) }),
+      plus: () => set({ guests: Math.min(12, st.guests + 1) }),
+      months: ['Spring', 'Summer', 'Autumn', 'Winter'].map(m => ({
+        label: m, bg: m === st.month ? '#24231f' : 'transparent', bg2: m === st.month ? '#24231f' : '#ebe6dc', fg: m === st.month ? '#fff' : '#24231f',
+        pick: () => set({ month: m })
+      })),
+      moods: ['All', 'Beach', 'City', 'Nature'].map(m => ({
+        label: m, bg: m === st.mood ? '#c2714e' : '#ebe6dc', fg: m === st.mood ? '#fff' : '#24231f',
+        pick: () => set({ mood: m })
+      })),
+      hs: CONT.map(c => {
+        const on = filtering && hit.has(c.id);
+        return { ...c, x: POS[c.id][0] + '%', y: POS[c.id][1] + '%', bg: on ? c.color : '#fffdf8', fg: on ? '#fff' : '#24231f',
+          op: filtering && !on ? 0.4 : 1, pick: () => set({ open: true, q: c.name }) };
+      }),
+      res: res.map((d, i) => ({ ...d, color: contOf(d.c).color, contName: contOf(d.c).name,
+        op: o ? 1 : 0, y: o ? '0px' : '24px', delay: o ? (0.25 + Math.min(i, 9) * 0.05).toFixed(2) + 's' : '0s' }))
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const aSelC = contOf(s.a);
+    const aHs = {}, aPick = {};
+    CONT.forEach(c => {
+      const on = c.id === s.a;
+      aHs[c.id] = { bg: on ? c.color : '#fffdf8', fg: on ? '#fff' : '#24231f' };
+      aPick[c.id] = () => this.setState({ a: c.id });
+    });
+
+    const moods = ['All', 'Beach', 'City', 'Nature'];
+    const q = s.bWhere.trim().toLowerCase();
+    let bDest = DEST.filter(d => s.bMood === 'All' || d.mood === s.bMood);
+    if (q) bDest = bDest.filter(d => [d.name, d.country, contOf(d.c).name].some(t => t.toLowerCase().includes(q)));
+    bDest = bDest.slice(0, 6).map(d => ({ ...d, color: contOf(d.c).color, contName: contOf(d.c).name }));
+
+    const cSelC = contOf(s.c);
+    const cList = DEST.filter(d => d.c === s.c);
+    const trip = s.trip.map(id => DEST.find(d => d.id === id));
+
+    const f4 = this.mk('s4a'), set4 = p => this.setState(s => ({ s4a: { ...(s.s4a || SEARCH0), ...p } }));
+    const hv = this.state.hov4 != null && this.state.countries ? this.state.countries[this.state.hov4] : null;
+    const v4a = { ...f4, barTop: f4.open ? '84px' : '700px', barW: f4.open ? '1200px' : '640px',
+      barR: f4.open ? '20px' : '999px', inPad: f4.open ? '10px 18px' : '0 20px', ph: f4.open ? 'Anywhere' : 'Where do you want to go?', inW: f4.open ? 500 : 400,
+      btnR: f4.open ? '14px' : '999px', btnH: f4.open ? '60px' : '48px', btnPad: f4.open ? '30px' : '26px', btnW: f4.open ? 600 : 500, btnText: f4.open ? 'Find trips' : 'Search',
+      months: f4.months.map(m => ({ ...m, bg2: m.bg === 'transparent' ? '#f2eee6' : m.bg })),
+      mapOp: f4.open ? 0.15 : 1, mapBlur: f4.open ? 'blur(6px)' : 'blur(0px)', mapTf: f4.open ? 'scale(1.06)' : 'scale(1)',
+      panelOp: f4.open ? 1 : 0, panelY: f4.open ? '0px' : '40px', pe: f4.open ? 'auto' : 'none',
+      countries: (this.state.countries || []).map((k, i) => ({ ...k, fill: MAPCOL[k.c],
+        enter: () => this.state.hov4 !== i && this.setState({ hov4: i }), pick: () => set4({ open: true, q: k.n }) })),
+      unhover: () => this.setState({ hov4: null }),
+      leave: () => this.setState({ hov4: null, near4: '' }),
+      bgClick: e => { if (f4.open && !e.target.closest('button,input,label,a,[data-keep]')) { if (document.activeElement) document.activeElement.blur(); f4.close(); } },
+      close: () => { if (document.activeElement) document.activeElement.blur(); f4.close(); },
+      openIt: () => { if (!f4.open) f4.openIt(); },
+      move: e => {
+        const r = e.currentTarget.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        const near = CONT.filter(c => Math.hypot((px - POS[c.id][0] / 100) * 1650, (py - POS[c.id][1] / 100) * 921) < 170).map(c => c.id).join(',');
+        if (near !== (this.state.near4 || '')) this.setState({ near4: near });
+      },
+      pills: CONT.map(c => {
+        const hide = f4.open || (this.state.near4 || '').split(',').includes(c.id);
+        return { name: c.name, x: POS[c.id][0] + '%', y: POS[c.id][1] + '%', op: hide ? 0 : 1, sc: hide ? 0.85 : 1,
+          pick: () => { this.setState({ hov4: null }); set4({ open: true, q: c.name }); } };
+      }),
+      hasHov: !!hv && !f4.open,
+      hov: hv ? { n: hv.n, x: hv.x + '%', y: hv.y + '%', fill: MAPCOL[hv.c] } : { n: '', x: '0%', y: '0%', fill: '#000' },
+      hovEl: hv && !f4.open ? React.createElement('path', { key: this.state.hov4, d: hv.d, fill: MAPCOL[hv.c], stroke: '#fffdf8', strokeWidth: 1, strokeLinejoin: 'round',
+        style: { '--s': hv.s, transformBox: 'fill-box', transformOrigin: 'center', pointerEvents: 'none', filter: 'drop-shadow(0 6px 6px rgba(36,35,31,.35))', animation: 'countryPop .28s cubic-bezier(.3,1.6,.5,1) forwards' } }) : null
+    };
+    return {
+      v4a,
+      aHs, aPick, aSel: aSelC,
+      aDest: DEST.filter(d => d.c === s.a),
+
+      bWhere: s.bWhere,
+      bSetWhere: e => this.setState({ bWhere: e.target.value, bDone: false }),
+      bMonths: ['Spring', 'Summer', 'Winter'].map(m => ({
+        label: m, bg: m === s.bMonth ? '#24231f' : '#f4efe6', fg: m === s.bMonth ? '#fff' : '#24231f',
+        pick: () => this.setState({ bMonth: m })
+      })),
+      bGuests: s.bGuests,
+      bMinus: () => this.setState({ bGuests: Math.max(1, s.bGuests - 1) }),
+      bPlus: () => this.setState({ bGuests: Math.min(12, s.bGuests + 1) }),
+      bGo: () => this.setState({ bDone: true }),
+      bDone: s.bDone,
+      bSummary: `${s.bWhere || 'anywhere'}, ${s.bMonth.toLowerCase()}, ${s.bGuests} ${s.bGuests === 1 ? 'traveller' : 'travellers'}`,
+      bMoods: moods.map(m => ({
+        label: m, bg: m === s.bMood ? '#24231f' : 'transparent', fg: m === s.bMood ? '#fff' : '#24231f',
+        pick: () => this.setState({ bMood: m })
+      })),
+      bDest,
+
+      cSel: { ...cSelC, count: cList.length },
+      cTabs: CONT.map((c, i) => ({ ...c, n: i + 1, op: c.id === s.c ? 1 : 0.55, pick: () => this.setState({ c: c.id }) })),
+      cDest: cList.map(d => {
+        const added = s.trip.includes(d.id);
+        return {
+          ...d, label: added ? 'Added ✓' : '+ Add to trip',
+          bg: added ? '#24231f' : 'transparent', fg: added ? '#fff' : '#24231f',
+          toggle: () => this.setState(st => ({ trip: added ? st.trip.filter(x => x !== d.id) : [...st.trip, d.id] }))
+        };
+      }),
+      cTrip: trip.map((d, i) => ({ ...d, n: i + 1, color: contOf(d.c).color })),
+      cCount: trip.length,
+      cEmpty: trip.length === 0,
+      cHas: trip.length > 0
+    };
+  }
+}
+</script>
+</body>
+</html>

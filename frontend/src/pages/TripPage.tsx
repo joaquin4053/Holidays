@@ -53,7 +53,9 @@ export default function TripPage() {
   if (error) { failed = true; title = 'Could not load the trip'; msg = error }
   else if (trip?.status === 'error') { failed = true; title = 'Planning failed'; msg = trip.error || 'Unknown error'; pct = 100 }
   else if (running && req) {
-    const expected = 4 + 3 * req.stops.length + 2 * (names.length - 1)
+    // one request per trip: start + one search per stop and leg + writing + converting + done
+    // (the split mode sends more events; the bar then just stops at 95 %)
+    const expected = 4 + req.stops.length + (names.length - 1)
     const el = (Date.now() - t0.current) / 1000
     pct = Math.min(95, Math.max(events.length / expected * 100, 90 * (1 - Math.exp(-el / 45))))
     msg = events.length ? events[events.length - 1].message : 'Queued'
